@@ -3,7 +3,7 @@
 
 //store.go should work with, in a text-based format:
 // -how many, what kinds of F&V objects currently held by player object
-// -player object's gold
+// -player's gold
 // -unlocked items in store (if unlocks based on playthrough points)
 // -how much each store item costs (Fruit and Vegetable objects)
 // -option to buy a quantity of the store item up until all player gold used
@@ -11,19 +11,51 @@
 
 package main
 
+//import (
+//	"fmt"
+//)
+
 //TODO: bring in the player object/connect the player object to the code
-//TODO: look at player points to determine what items unlocked
 //TODO: get prices of different Fruit and Vegetable Objects
 
-//TODO: start(): puts other functions together
+//func main() {
+//fmt.Println("Welcome to the shop!")
+//const items = getUnlocked(Player.gp)
+//storefront(items)
+//}
 
-//TODO: storefront(): a display of all unlocked items, could be
-//just a list mapped 1-9 and formatted like "Pumpkin Seed (2) - 320 g"
+//TODO: getUnlocked(Player.gp): determines what is unlocked by the amount of
+//points the player has earned. Returns an array formatted like: "8 - Pumpkin Seed (2) - 320 g"
+//Each list item = "NUM TO SELECT - FRUIT/V'S NAME - FRUIT/V'S COST"
+//func getUnlocked(Player.gp) []str {
+//TODO: either construct the list recursively or with a for loop (if go has those)
+//}
 
-//TODO: purchase(): calculates min/max items that can be purchased with current gold,
-//transfers item to player and gold from player if confirmed
+// TODO: storefront(getUnlocked's list): interacting with all unlocked items (could be just the getUnlocked() list)
+// allows for selecting an item by entering the number preceding it to buy()
+//func storefront(items) {
+//fmt.Println(items)
+//possible overarcing loop: while 'E' has not been typed
+//fmt.Println("To select item, type its number and press Enter.")
+//fmt.println("To leave the shop, type 'E'.")
+//player input
+//if player input is valid number:
+//buy(Fruit/V's cost, Player.gp)
+//if player input is 'E' (and not determined in overarcing loop):
+//leave()
+//after buying, players back at shop menu list until deciding to leave()
+//}
 
-//TODO leave(): exits shop menu
+//TODO: buy(Fruit/Vegetable.cost, Player.gp): calculates min/max item quantity
+//that can be purchased with current gold,
+//transfers item(s) to player and gold from player if confirmed
+//returns to storefront() previous menu if cancelled
 
-//MAYBE TODO: sell(): allows for player to select how many items to sell. Could
+//TODO leave(): exits shop menu ('E'?)
+//func leave() {
+//fmt.Println("Thank you for shopping with us!")
+//return to field code
+//}
+
+//MAYBE TODO: sell(Player.inventory(?)): allows for player to select how many items to sell. Could
 //be done in a handful of ways (sell all? sell per item?)
