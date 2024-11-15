@@ -59,7 +59,7 @@ func (g *Plot) printGarden() {
 			} else {
 				// Plant object should have a symbol value
 				// If plant is not yet fully grown then
-				if g.plot[i][j].fullyGrown == true {
+				if g.plot[i][j].fullyGrown {
 					fmt.Print(g.plot[i][j].Symbol, " ")
 				} else {
 					fmt.Print("🌱 ")
@@ -82,3 +82,6 @@ func (g *Plot) Plant(row, col int, crop *Crop) {
 		fmt.Println("Cannot plant: the row/col is outside the plot")
 	}
 }
+
+// player.Points = player.Points + 1
+// fmt.Println(player.Points = player.Points + 1)
