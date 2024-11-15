@@ -4,9 +4,14 @@ import (
 	"fmt"
 )
 
+type Crop struct {
+	Name       string
+	Symbol     string
+	fullyGrown bool
+}
+
 // Main Game Logic
 func main() {
-
 	fmt.Println("Welcome to the Farming Simulation Game!")
 	fmt.Println("Are you a new player or continuing? (Type 'new' or 'continue')")
 	var playerType string
@@ -52,4 +57,13 @@ func main() {
 
 	fmt.Println("Game saved!")
 
+	// Garden Simulation
+	garden := CreatePlot(5, 5)
+	potato := Crop{Name: "Flower", Symbol: "🥔", fullyGrown: true}
+	mango := Crop{Name: "Mango", Symbol: "🥭", fullyGrown: false}
+	mango2 := Crop{Name: "Mango", Symbol: "🥭", fullyGrown: true}
+	garden.Plant(0, 0, &potato)
+	garden.Plant(2, 2, &mango)
+	garden.Plant(2, 3, &mango2)
+	garden.printGarden()
 }
