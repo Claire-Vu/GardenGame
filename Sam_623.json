@@ -1,0 +1,60 @@
+{
+  "Username": "Sam_623",
+  "Points": 0,
+  "Resources": {
+    "Carrot": 1
+  },
+  "Plot": {
+    "Rows": 5,
+    "Cols": 5,
+    "Plot": [
+      [
+        {
+          "Name": "potato",
+          "Symbol": "🥔",
+          "FullyGrown": false
+        },
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        {
+          "Name": "flower",
+          "Symbol": "🌸",
+          "FullyGrown": false
+        },
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        {
+          "Name": "potato",
+          "Symbol": "🥔",
+          "FullyGrown": false
+        },
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    ]
+  }
+}
