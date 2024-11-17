@@ -23,7 +23,7 @@ func CreateNewPlayer(name string, rows int, cols int) Player {
 	username := name + "_" + strconv.Itoa(rand.Intn(1000))
 	player := Player{
 		Username: username,
-		Points:   200,
+		Points:   0,
 		SeedStorage: map[string]int{
 			"carrot":  1,
 			"potato":  1,

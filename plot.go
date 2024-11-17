@@ -5,7 +5,8 @@ import "fmt"
 type Plot struct {
 	Rows, Cols int
 	//Initializes a 2D array of pointers to Crop objects
-	Plot [][]*Crop
+	Plot      [][]*Crop
+	PlotLevel int
 }
 
 // Initializes a garden Plot of size Rows x Cols
@@ -14,7 +15,8 @@ func CreatePlot(Rows, Cols int) *Plot {
 		Rows: Rows,
 		Cols: Cols,
 		// Makes an array with of Rows length
-		Plot: make([][]*Crop, Rows),
+		Plot:      make([][]*Crop, Rows),
+		PlotLevel: 0,
 	}
 
 	// Initialize the 2D slice with empty soil (nil)

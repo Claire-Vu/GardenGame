@@ -51,10 +51,10 @@ func main() {
 				cropName, symbol, err = AskWhatToPlant(&player)
 			}
 			// Ask where to plant the crop
-			row, col, err := AskWhereToPlant()
+			row, col, err := player.AskWhereToPlant()
 			for err != nil {
 				fmt.Println(err)
-				row, col, err = AskWhereToPlant()
+				row, col, err = player.AskWhereToPlant()
 			}
 			//cropObject := createCrop(cropName)
 
@@ -90,12 +90,7 @@ func main() {
 			os.Exit(0)
 		}
 
-		// If player reaches treshold for plot upgrade then auto grow plot
-		if (player.Points % 200) == 0 {
-			player.GrowPlotPlayer(2, 2)
-			fmt.Println("Your plot as automatically upgraded!")
-
-		}
+		player.updatePlot()
 
 		// Saves the player data after each action
 		SavePlayer(player)
@@ -162,14 +157,14 @@ func AskWhatToPlant(player *Player) (string, string, error) {
 }
 
 // WHERE TO PLANT?
-func AskWhereToPlant() (int, int, error) {
+func (p *Player) AskWhereToPlant() (int, int, error) {
 	var row, col int
 	fmt.Println("Enter the row and column (e.g., 0 1) where you want to plant the crop:")
 	fmt.Scanln(&row, &col)
 
 	// Ensure the input is within bounds
-	if row < 0 || row > 4 || col < 0 || col > 4 {
-		return 0, 0, fmt.Errorf("invalid row or column, must be between 0 and 4")
+	if row < 0 || row >= p.Plot.Rows || col < 0 || col >= p.Plot.Cols {
+		return 0, 0, fmt.Errorf("invalid row or column, must be between 0 and %d", p.Plot.Rows-1)
 	}
 
 	return row, col, nil
@@ -201,4 +196,24 @@ func HandleExistingPlayer() Player {
 	fmt.Println("\n---Current Status---")
 	player.DisplayInfo()
 	return player
+}
+func (p *Player) updatePlot() {
+	// If player reaches treshold for plot upgrade then auto grow plot
+	if p.Points == 200 && p.Plot.PlotLevel == 0 {
+		p.GrowPlotPlayer(2, 2)
+		p.Plot.PlotLevel++
+		fmt.Println("Your plot was automatically upgraded!")
+	}
+	// only upgrades the plot when player reaches the specified points
+	// and when plot hasn't been updated yet
+	if p.Points == 400 && p.Plot.PlotLevel == 1 {
+		p.GrowPlotPlayer(2, 2)
+		p.Plot.PlotLevel++
+		fmt.Println("Your plot was automatically upgraded!")
+	}
+	if p.Points == 600 && p.Plot.PlotLevel == 2 {
+		p.GrowPlotPlayer(2, 2)
+		p.Plot.PlotLevel++
+		fmt.Println("Your plot was automatically upgraded!")
+	}
 }
