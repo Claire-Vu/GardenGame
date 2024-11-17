@@ -15,15 +15,15 @@ type Crop struct {
 }
 
 //Vegetables: object deleted after harvest
-var carrot = Crop{"Vegetable", "Carrot", 20, 4, 0, "🥕", 10, 0}
-var potato = Crop{"Vegetable", "Potato", 40, 6, 0, "🥔", 20, 0}
-var garlic = Crop{"Vegetable", "Garlic", 60, 8, 0, "🧄", 40, 0}
-var corn = Crop{"Vegetable", "Corn", 100, 8, 0, "🌽", 30, 0}
-var pumpkin = Crop{"Vegetable", "Pumpkin", 100, 14, 0, "🎃", 320, 0}
+var carrot = Crop{"Vegetable", "Carrot", 20, 4, 0, "🥕", 10, false}
+var potato = Crop{"Vegetable", "Potato", 40, 6, 0, "🥔", 20, false}
+var garlic = Crop{"Vegetable", "Garlic", 60, 8, 0, "🧄", 40, false}
+var corn = Crop{"Vegetable", "Corn", 100, 8, 0, "🌽", 30, false}
+var pumpkin = Crop{"Vegetable", "Pumpkin", 100, 14, 0, "🎃", 320, false}
 
 //Fruits: TimePlanted reset to zero after harvest
-var apple = Crop{"Fruit", "Apple", 70, 6, 0, "🍎", 10, 0}
-var orange = Crop{"Fruit", "Orange", 70, 6, 0, "🍊", 10, 0}
-var mango = Crop{"Fruit", "Mango", 110, 8, 0, "🥭", 20, 0}
-var peach = Crop{"Fruit", "Peach", 140, 8, 0, "🍑", 30, 0}
-var banana = Crop{"Fruit", "Banana", 180, 12, 0, "🍌", 45, 0}
+var apple = Crop{"Fruit", "Apple", 70, 6, 0, "🍎", 10, false}
+var orange = Crop{"Fruit", "Orange", 70, 6, 0, "🍊", 10, false}
+var mango = Crop{"Fruit", "Mango", 110, 8, 0, "🥭", 20, false}
+var peach = Crop{"Fruit", "Peach", 140, 8, 0, "🍑", 30, false}
+var banana = Crop{"Fruit", "Banana", 180, 12, 0, "🍌", 45, false}
