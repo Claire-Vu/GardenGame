@@ -34,7 +34,7 @@ var cropDict = map[string]Crop{
 },
 
 //takes lowercase crop name, returns data structure of new crop
-func createCrop(cropName string) {
+func createCrop(cropName string) *Crop {
 	return cropDict[cropName]
 }
 
