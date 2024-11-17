@@ -15,7 +15,7 @@ type Crop struct {
 	FullyGrown     bool   // TimePlanted == ProductionDays, ready to sell
 }
 
-cropDict := map[string]Crop{
+var cropDict = map[string]Crop{
 
 	//Vegetables: object deleted after harvest
 	"carrot": Crop{"Vegetable", "Carrot", 20, 4, 0, "🥕", 10, false},
