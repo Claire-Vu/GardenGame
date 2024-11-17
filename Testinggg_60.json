@@ -1,0 +1,82 @@
+{
+  "Username": "Testinggg_60",
+  "Points": 0,
+  "SeedStorage": {
+    "carrot": 1,
+    "corn": 1,
+    "garlic": 1,
+    "potato": 1,
+    "pumpkin": 1
+  },
+  "CropInventory": {},
+  "Plot": {
+    "Rows": 7,
+    "Cols": 7,
+    "Plot": [
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    ]
+  },
+  "Day": 0
+}

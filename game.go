@@ -27,6 +27,13 @@ func main() {
 		return
 	}
 
+	// If player reaches treshold for plot upgrade then auto grow plot
+	// FOR TESTING ONLY
+	if (player.Points % 200) == 0 {
+		player.GrowPlotPlayer(2, 2)
+		SavePlayer(player)
+	}
+
 	var gameRunning bool = true
 	for gameRunning {
 		// prints command options
@@ -35,7 +42,7 @@ func main() {
 		// Ask what user wants to do
 		var choice int
 		fmt.Print("Enter your choice (1-6): ")
-		fmt.Scanln(&choice)
+		fmt.Scan(&choice)
 
 		// Validate the input
 		if choice < 1 || choice > 6 {
@@ -56,6 +63,8 @@ func main() {
 				fmt.Println(err)
 				row, col, err = AskWhereToPlant()
 			}
+			//cropObject := createCrop(cropName)
+
 			// Plant the crop
 			player.PlantCrop(row, col, Crop{Name: cropName, Symbol: symbol, FullyGrown: false})
 
@@ -81,8 +90,6 @@ func main() {
 		if choice == 5 {
 			player.Plot.updateCrops()
 			player.Day += 1
-			gameRunning = false
-
 		}
 		// EXIT
 		if choice == 6 {

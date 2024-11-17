@@ -99,7 +99,7 @@ func (p *Player) PlantCrop(row, col int, crop Crop) error {
 }
 
 // GROWING THE PLAYER'S PLOT
-func (p *Player) GrowPlot(numRows, numCols int) {
+func (p *Player) GrowPlotPlayer(numRows int, numCols int) {
 	p.Plot = p.Plot.GrowPlot(numRows, numCols)
 }
 
