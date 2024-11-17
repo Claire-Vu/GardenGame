@@ -1,36 +1,19 @@
 {
-  "Username": "Sam_623",
+  "Username": "Sam_211",
   "Points": 0,
-  "Resources": {
-    "Carrot": 1
+  "SeedStorage": {
+    "carrot": 1,
+    "corn": 0,
+    "garlic": 1,
+    "potato": 1,
+    "pumpkin": 1
   },
+  "CropInventory": {},
   "Plot": {
     "Rows": 5,
     "Cols": 5,
     "Plot": [
       [
-        {
-          "Name": "potato",
-          "Symbol": "🥔",
-          "FullyGrown": false
-        },
-        null,
-        null,
-        null,
-        null
-      ],
-      [
-        null,
-        {
-          "Name": "flower",
-          "Symbol": "🌸",
-          "FullyGrown": false
-        },
-        null,
-        null,
-        null
-      ],
-      [
         null,
         null,
         null,
@@ -40,10 +23,24 @@
       [
         null,
         {
-          "Name": "potato",
-          "Symbol": "🥔",
+          "Name": "corn",
+          "Symbol": "🌽",
           "FullyGrown": false
         },
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
         null,
         null,
         null

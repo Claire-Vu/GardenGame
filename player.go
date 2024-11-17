@@ -10,20 +10,28 @@ import (
 
 // PLAYER DATA
 type Player struct {
-	Username  string
-	Points    int
-	Resources map[string]int
-	Plot      *Plot
+	Username      string
+	Points        int
+	SeedStorage   map[string]int // Tracks the player's available seeds (e.g., carrot seeds)
+	CropInventory map[string]int // Tracks harvested crops (e.g., carrots, potatoes)
+	Plot          *Plot
 }
 
 // FOR NEW PLAYER ONLY!
 func CreateNewPlayer(name string, rows int, cols int) Player {
 	username := name + "_" + strconv.Itoa(rand.Intn(1000))
 	player := Player{
-		Username:  username,
-		Points:    0,
-		Resources: map[string]int{"Carrot": 1}, // start with one parsnip
-		Plot:      CreatePlot(rows, cols),
+		Username: username,
+		Points:   0,
+		SeedStorage: map[string]int{
+			"carrot":  1,
+			"potato":  1,
+			"garlic":  1,
+			"corn":    1,
+			"pumpkin": 1,
+		}, // Start with one of each vegetable seed
+		CropInventory: make(map[string]int),
+		Plot:          CreatePlot(rows, cols),
 	}
 	fmt.Printf("\nWelcome, %s! Your username is %s. Remember this for future logins.\n", name, username)
 	return player
@@ -75,13 +83,39 @@ func SavePlayer(player Player) {
 }
 
 // PLANTING CROP IN THE PLAYER'S PLOT
-func (p *Player) PlantCrop(row, col int, crop Crop) {
-	// Call the Plant method from the Plot struct
+func (p *Player) PlantCrop(row, col int, crop Crop) error {
+	//Check if the player has enough seeds to plant
+	if p.SeedStorage[crop.Name] <= 0 {
+		return fmt.Errorf("not enough %s seeds to plant", crop.Name)
+	}
+
 	p.Plot.Plant(row, col, &crop)
+	fmt.Printf("Planted %s at row %d, column %d.\n", crop.Name, row, col)
+
+	p.SeedStorage[crop.Name]--
+	return nil
 }
 
 // GROWING THE PLAYER'S PLOT
 func (p *Player) GrowPlot(numRows, numCols int) {
-	// Call the GrowPlot method from the Plot struct
 	p.Plot = p.Plot.GrowPlot(numRows, numCols)
+}
+
+// DISPLAY PLAYER'S INVENTORY
+func (p *Player) DisplayInfo() {
+	fmt.Printf("Username: %s\n", p.Username)
+	fmt.Printf("Points: %d\n", p.Points)
+	fmt.Println("Seed Storage:")
+	for crop, count := range p.SeedStorage {
+		fmt.Printf("  %s: %d\n", crop, count)
+	}
+
+	if len(p.CropInventory) == 0 {
+		fmt.Println("Crop Inventory: No harvest yet.")
+	} else {
+		fmt.Println("Crop Inventory:")
+		for crop, count := range p.CropInventory {
+			fmt.Printf("  %s: %d\n", crop, count)
+		}
+	}
 }

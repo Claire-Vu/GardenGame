@@ -28,7 +28,7 @@ func main() {
 	}
 
 	// Ask the player what crop they want to plant
-	cropName, symbol, err := AskWhatToPlant()
+	cropName, symbol, err := AskWhatToPlant(&player)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -48,10 +48,8 @@ func main() {
 	SavePlayer(player)
 
 	// Display the updated player information
-	fmt.Println("\n---Current Resources---")
-	for resource, amount := range player.Resources {
-		fmt.Printf("%s: %d\n", resource, amount)
-	}
+	fmt.Println("\n---Current Status---")
+	player.DisplayInfo()
 
 	// Display the player's garden (plot)
 	fmt.Println("\n---Current Garden---")
@@ -71,26 +69,43 @@ func main() {
 }
 
 // WHAT TO PLANT? - This will be Elaine's part about the store.
-func AskWhatToPlant() (string, string, error) {
+func AskWhatToPlant(player *Player) (string, string, error) {
 	var cropName string
 	fmt.Println("What crop would you like to plant?")
-	fmt.Println("Available crops: Carrot, Potato, Flower")
+	fmt.Println("Available crops: carrot, potato, corn, pumpkin, garlic")
+	fmt.Println("Or type 'exit' to quit the game.")
 	fmt.Scanln(&cropName)
 
-	cropName = strings.ToLower(cropName)
-	// Validate crop choice
-	var symbol string
-	switch cropName {
-	case "carrot":
-		symbol = "🥕"
-	case "potato":
-		symbol = "🥔"
-	case "flower":
-		symbol = "🌸"
-	default:
-		return "", "", fmt.Errorf("invalid crop choice")
+	// Handle the exit case
+	if strings.ToLower(cropName) == "exit" {
+		fmt.Println("Exiting the game...")
+		os.Exit(0)
 	}
-	return cropName, symbol, nil
+
+	cropName = strings.ToLower(cropName)
+
+	// Map of available crops and their symbols
+	cropData := map[string]struct {
+		symbol string
+	}{
+		"carrot":  {"🥕"},
+		"potato":  {"🥔"},
+		"corn":    {"🌽"},
+		"pumpkin": {"🎃"},
+		"garlic":  {"🧄"},
+	}
+
+	// Validate crop choice
+	data, exists := cropData[cropName]
+	if !exists {
+		return "", "", fmt.Errorf("Invalid crop choice")
+	}
+
+	if player.SeedStorage[cropName] <= 0 {
+		return "", "", fmt.Errorf("You don't have any %s seeds left.", cropName)
+	}
+
+	return cropName, data.symbol, nil
 }
 
 // WHERE TO PLANT?
@@ -114,6 +129,8 @@ func HandleNewPlayer() Player {
 	fmt.Scanln(&name)
 	player := CreateNewPlayer(name, 5, 5) // START WITH 5X5
 	SavePlayer(player)
+	fmt.Println("\n---Current Status---")
+	player.DisplayInfo()
 	return player
 }
 
@@ -128,5 +145,7 @@ func HandleExistingPlayer() Player {
 		os.Exit(1) // Exit with status code 1 (indicating an error)
 	}
 	fmt.Printf("\nWelcome back, %s!\n", player.Username)
+	fmt.Println("\n---Current Status---")
+	player.DisplayInfo()
 	return player
 }
