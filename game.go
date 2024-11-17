@@ -27,45 +27,89 @@ func main() {
 		return
 	}
 
-	// Ask the player what crop they want to plant
-	cropName, symbol, err := AskWhatToPlant(&player)
-	if err != nil {
-		fmt.Println(err)
-		return
+	var gameRunning bool = true
+	for gameRunning {
+		// prints command options
+		player.printMenu()
+
+		// Ask what user wants to do
+		var choice int
+		fmt.Print("Enter your choice (1-6): ")
+		fmt.Scan(&choice)
+
+		// Validate the input
+		if choice < 1 || choice > 6 {
+			fmt.Println("Invalid command. Please choose a valid option between 1 and 6.")
+		}
+
+		// PlANT COMMAND
+		if choice == 1 {
+			// Ask the player what crop they want to plant
+			cropName, symbol, err := AskWhatToPlant(&player)
+			for err != nil {
+				fmt.Println(err)
+				cropName, symbol, err = AskWhatToPlant(&player)
+			}
+			// Ask where to plant the crop
+			row, col, err := AskWhereToPlant()
+			for err != nil {
+				fmt.Println(err)
+				row, col, err = AskWhereToPlant()
+			}
+			// Plant the crop
+			player.PlantCrop(row, col, Crop{Name: cropName, Symbol: symbol, FullyGrown: false})
+
+		}
+		// HARVEST COMMAND
+		if choice == 2 {
+			player.HarvestAll()
+		}
+		// REMOVE COMMAND
+		if choice == 3 {
+			var row, col int
+			fmt.Print("Enter the row: ")
+			fmt.Scan(&row)
+			fmt.Print("Enter the col: ")
+			fmt.Scan(&col)
+			player.Plot.removeItem(row, col)
+		}
+		// SHOP
+		if choice == 4 {
+			// GO TO SHOP (PRINT SHOP MENU AND COMMANDS)
+		}
+		// END DAY
+		if choice == 5 {
+			player.Plot.updateCrops()
+			player.Day += 1
+		}
+		// EXIT
+		if choice == 6 {
+			fmt.Println("Exiting the game...")
+			os.Exit(0)
+		}
+
+		// Saves the player data after each action
+		SavePlayer(player)
+
+		fmt.Println("Game saved!")
+
+		// Display the updated player information
+		fmt.Println("\n---Current Status---")
+		player.DisplayInfo()
+
 	}
 
-	// Ask where to plant the crop
-	row, col, err := AskWhereToPlant()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+}
 
-	// Plant the crop
-	player.PlantCrop(row, col, Crop{Name: cropName, Symbol: symbol, FullyGrown: false})
-
-	// Save the player data after planting
-	SavePlayer(player)
-
-	// Display the updated player information
-	fmt.Println("\n---Current Status---")
-	player.DisplayInfo()
-
-	// Display the player's garden (plot)
-	fmt.Println("\n---Current Garden---")
-	player.Plot.printGarden()
-
-	fmt.Println("Game saved!")
-
-	// Garden Simulation
-	// garden := CreatePlot(5, 5)
-	// potato := Crop{Name: "Flower", Symbol: "🥔", fullyGrown: true}
-	// mango := Crop{Name: "Mango", Symbol: "🥭", fullyGrown: false}
-	// mango2 := Crop{Name: "Mango", Symbol: "🥭", fullyGrown: true}
-	// garden.Plant(0, 0, &potato)
-	// garden.Plant(2, 2, &mango)
-	// garden.Plant(2, 3, &mango2)
-	// garden.printGarden()
+// PRINTS AVAILABLE USER ACTIONS
+func (p *Player) printMenu() {
+	fmt.Println()
+	fmt.Println("Current Plot:")
+	fmt.Println()
+	p.Plot.printGarden()
+	fmt.Println()
+	fmt.Println("GARDEN OPTIONS:")
+	fmt.Println("(1 - PLANT) (2 - HARVEST) (3 - REMOVE) (4 - SHOP) (5 - END DAY) (6 - EXIT)")
 }
 
 // WHAT TO PLANT? - This will be Elaine's part about the store.

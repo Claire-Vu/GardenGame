@@ -13,8 +13,9 @@ type Player struct {
 	Username      string
 	Points        int
 	SeedStorage   map[string]int // Tracks the player's available seeds (e.g., carrot seeds)
-	CropInventory map[string]int // Tracks harvested crops (e.g., carrots, potatoes)
+	CropInventory map[*Crop]int  // Tracks harvested crops (e.g., carrots, potatoes)
 	Plot          *Plot
+	Day           int
 }
 
 // FOR NEW PLAYER ONLY!
@@ -30,8 +31,9 @@ func CreateNewPlayer(name string, rows int, cols int) Player {
 			"corn":    1,
 			"pumpkin": 1,
 		}, // Start with one of each vegetable seed
-		CropInventory: make(map[string]int),
+		CropInventory: make(map[*Crop]int),
 		Plot:          CreatePlot(rows, cols),
+		Day:           0,
 	}
 	fmt.Printf("\nWelcome, %s! Your username is %s. Remember this for future logins.\n", name, username)
 	return player
@@ -99,6 +101,21 @@ func (p *Player) PlantCrop(row, col int, crop Crop) error {
 // GROWING THE PLAYER'S PLOT
 func (p *Player) GrowPlot(numRows, numCols int) {
 	p.Plot = p.Plot.GrowPlot(numRows, numCols)
+}
+
+// HARVESTING THE PLAYER'S CROPS
+func (p *Player) HarvestAll() {
+	harvestedCrops := p.Plot.HarvestAll()
+
+	// Adds all harvested crops into inventory
+	for key, value := range harvestedCrops {
+		if quantity, ok := p.CropInventory[key]; ok {
+			p.CropInventory[key] = quantity + value
+		} else {
+			p.CropInventory[key] = value
+		}
+	}
+
 }
 
 // DISPLAY PLAYER'S INVENTORY
