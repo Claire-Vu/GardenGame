@@ -56,6 +56,8 @@ func main() {
 				fmt.Println(err)
 				row, col, err = AskWhereToPlant()
 			}
+			//cropObject := createCrop(cropName)
+
 			// Plant the crop
 			player.PlantCrop(row, col, Crop{Name: cropName, Symbol: symbol, FullyGrown: false})
 
@@ -86,6 +88,11 @@ func main() {
 		if choice == 6 {
 			fmt.Println("Exiting the game...")
 			os.Exit(0)
+		}
+
+		// If player reaches treshold for plot upgrade then auto grow plot
+		if (player.Points % 200) == 0 {
+			player.Plot.GrowPlot(2, 2)
 		}
 
 		// Saves the player data after each action
