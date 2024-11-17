@@ -13,7 +13,7 @@ type Player struct {
 	Username      string
 	Points        int
 	SeedStorage   map[string]int // Tracks the player's available seeds (e.g., carrot seeds)
-	CropInventory map[*Crop]int  // Tracks harvested crops (e.g., carrots, potatoes)
+	CropInventory map[string]int // Tracks harvested crops (e.g., carrots, potatoes)
 	Plot          *Plot
 	Day           int
 }
@@ -31,7 +31,7 @@ func CreateNewPlayer(name string, rows int, cols int) Player {
 			"corn":    1,
 			"pumpkin": 1,
 		}, // Start with one of each vegetable seed
-		CropInventory: make(map[*Crop]int),
+		CropInventory: make(map[string]int),
 		Plot:          CreatePlot(rows, cols),
 		Day:           0,
 	}
@@ -109,10 +109,10 @@ func (p *Player) HarvestAll() {
 
 	// Adds all harvested crops into inventory
 	for key, value := range harvestedCrops {
-		if quantity, ok := p.CropInventory[key]; ok {
-			p.CropInventory[key] = quantity + value
+		if quantity, ok := p.CropInventory[key.Name]; ok {
+			p.CropInventory[key.Name] = quantity + value
 		} else {
-			p.CropInventory[key] = value
+			p.CropInventory[key.Name] = value
 		}
 	}
 
@@ -126,6 +126,7 @@ func (p *Player) DisplayInfo() {
 	for crop, count := range p.SeedStorage {
 		fmt.Printf("  %s: %d\n", crop, count)
 	}
+	fmt.Println("Day: ", p.Day)
 
 	if len(p.CropInventory) == 0 {
 		fmt.Println("Crop Inventory: No harvest yet.")

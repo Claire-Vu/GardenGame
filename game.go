@@ -35,7 +35,7 @@ func main() {
 		// Ask what user wants to do
 		var choice int
 		fmt.Print("Enter your choice (1-6): ")
-		fmt.Scan(&choice)
+		fmt.Scanln(&choice)
 
 		// Validate the input
 		if choice < 1 || choice > 6 {
@@ -81,6 +81,8 @@ func main() {
 		if choice == 5 {
 			player.Plot.updateCrops()
 			player.Day += 1
+			gameRunning = false
+
 		}
 		// EXIT
 		if choice == 6 {
