@@ -2,7 +2,7 @@ package main
 
 // If implemented, this file is for assigning characteristics to fruit/vegetables.
 
-// data structures created by yen!
+// Crop is an interface that all crops should implement
 type Crop struct {
 	Type           string
 	Name           string

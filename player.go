@@ -1,31 +1,41 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"math/rand"
 	"os"
 	"strconv"
-	"strings"
 )
 
 // PLAYER DATA
 type Player struct {
-	Username  string
-	Points    int
-	Resources map[string]int
+	Username      string
+	Points        int
+	SeedStorage   map[string]int // Tracks the player's available seeds (e.g., carrot seeds)
+	CropInventory map[*Crop]int  // Tracks harvested crops (e.g., carrots, potatoes)
+	Plot          *Plot
+	Day           int
 }
 
 // FOR NEW PLAYER ONLY!
-func CreateNewPlayer(name string) Player {
+func CreateNewPlayer(name string, rows int, cols int) Player {
 	username := name + "_" + strconv.Itoa(rand.Intn(1000))
 	player := Player{
-		Username:  username,
-		Points:    0,
-		Resources: map[string]int{"Parsnip": 1}, // start with one parsnip
+		Username: username,
+		Points:   0,
+		SeedStorage: map[string]int{
+			"carrot":  1,
+			"potato":  1,
+			"garlic":  1,
+			"corn":    1,
+			"pumpkin": 1,
+		}, // Start with one of each vegetable seed
+		CropInventory: make(map[*Crop]int),
+		Plot:          CreatePlot(rows, cols),
+		Day:           0,
 	}
-	fmt.Printf("Welcome, %s! Your username is %s. Remember this for future logins.\n", name, username)
+	fmt.Printf("\nWelcome, %s! Your username is %s. Remember this for future logins.\n", name, username)
 	return player
 }
 
@@ -38,31 +48,17 @@ func LoadPlayer(username string) (Player, error) {
 	}
 	defer file.Close()
 
-	// create a new scanner to read the file line by line
-	scanner := bufio.NewScanner(file)
+	// Create a variable to hold the player data
+	var player Player
 
-	// initialize Player with username and empty resources map
-	player := Player{Username: username,
-		Resources: make(map[string]int)}
-
-	// read the first line for player points
-	if scanner.Scan() {
-		// convert points from string to int
-		player.Points, _ = strconv.Atoi(scanner.Text())
+	// Decode the entire file into the player struct
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&player)
+	if err != nil {
+		return Player{}, fmt.Errorf("error decoding player data: %v", err)
 	}
 
-	// read the remaining lines for resources
-	for scanner.Scan() {
-		line := scanner.Text()
-		parts := strings.Split(line, ":")
-		if len(parts) == 2 {
-			item := parts[0]
-			// convert string to int, ignoring errors
-			amount, _ := strconv.Atoi(parts[1])
-			player.Resources[item] = amount
-		}
-	}
-
+	// Return the loaded player struct
 	return player, nil
 }
 
@@ -86,4 +82,57 @@ func SavePlayer(player Player) {
 
 	// write the JSON data to the file
 	file.Write(data)
+}
+
+// PLANTING CROP IN THE PLAYER'S PLOT
+func (p *Player) PlantCrop(row, col int, crop Crop) error {
+	//Check if the player has enough seeds to plant
+	if p.SeedStorage[crop.Name] <= 0 {
+		return fmt.Errorf("not enough %s seeds to plant", crop.Name)
+	}
+
+	p.Plot.Plant(row, col, &crop)
+	fmt.Printf("Planted %s at row %d, column %d.\n", crop.Name, row, col)
+
+	p.SeedStorage[crop.Name]--
+	return nil
+}
+
+// GROWING THE PLAYER'S PLOT
+func (p *Player) GrowPlot(numRows, numCols int) {
+	p.Plot = p.Plot.GrowPlot(numRows, numCols)
+}
+
+// HARVESTING THE PLAYER'S CROPS
+func (p *Player) HarvestAll() {
+	harvestedCrops := p.Plot.HarvestAll()
+
+	// Adds all harvested crops into inventory
+	for key, value := range harvestedCrops {
+		if quantity, ok := p.CropInventory[key]; ok {
+			p.CropInventory[key] = quantity + value
+		} else {
+			p.CropInventory[key] = value
+		}
+	}
+
+}
+
+// DISPLAY PLAYER'S INVENTORY
+func (p *Player) DisplayInfo() {
+	fmt.Printf("Username: %s\n", p.Username)
+	fmt.Printf("Points: %d\n", p.Points)
+	fmt.Println("Seed Storage:")
+	for crop, count := range p.SeedStorage {
+		fmt.Printf("  %s: %d\n", crop, count)
+	}
+
+	if len(p.CropInventory) == 0 {
+		fmt.Println("Crop Inventory: No harvest yet.")
+	} else {
+		fmt.Println("Crop Inventory:")
+		for crop, count := range p.CropInventory {
+			fmt.Printf("  %s: %d\n", crop, count)
+		}
+	}
 }
