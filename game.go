@@ -92,7 +92,9 @@ func main() {
 
 		// If player reaches treshold for plot upgrade then auto grow plot
 		if (player.Points % 200) == 0 {
-			player.Plot.GrowPlot(2, 2)
+			player.GrowPlotPlayer(2, 2)
+			fmt.Println("Your plot as automatically upgraded!")
+
 		}
 
 		// Saves the player data after each action

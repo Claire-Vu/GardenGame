@@ -99,9 +99,9 @@ func (p *Player) PlantCrop(row, col int, crop Crop) error {
 }
 
 // GROWING THE PLAYER'S PLOT
-func (p *Player) GrowPlot(numRows, numCols int) {
+func (p *Player) GrowPlotPlayer(numRows int, numCols int) {
+	fmt.Println("ANDHERE!")
 	p.Plot = p.Plot.GrowPlot(numRows, numCols)
-
 }
 
 // HARVESTING THE PLAYER'S CROPS
