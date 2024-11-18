@@ -100,8 +100,6 @@ func main() {
 		}
 
 		player.updatePlot()
-
-		player.updatePlot()
 		// Saves the player data after each action
 		SavePlayer(player)
 
