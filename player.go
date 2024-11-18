@@ -15,6 +15,7 @@ type Player struct {
 	SeedStorage   map[string]int // Tracks the player's available seeds (e.g., carrot seeds)
 	CropInventory map[string]int // Tracks harvested crops (e.g., carrots, potatoes)
 	Plot          *Plot
+	Day           int
 }
 
 // FOR NEW PLAYER ONLY!
@@ -32,6 +33,7 @@ func CreateNewPlayer(name string, rows int, cols int) Player {
 		}, // Start with one of each vegetable seed
 		CropInventory: make(map[string]int),
 		Plot:          CreatePlot(rows, cols),
+		Day:           0,
 	}
 	fmt.Printf("\nWelcome, %s! Your username is %s. Remember this for future logins.\n", name, username)
 	return player
@@ -83,13 +85,13 @@ func SavePlayer(player Player) {
 }
 
 // PLANTING CROP IN THE PLAYER'S PLOT
-func (p *Player) PlantCrop(row, col int, crop Crop) error {
-	//Check if the player has enough seeds to plant
+func (p *Player) PlantCrop(row, col int, crop *Crop) error {
+	// Check if the player has enough seeds to plant
 	if p.SeedStorage[crop.Name] <= 0 {
 		return fmt.Errorf("not enough %s seeds to plant", crop.Name)
 	}
 
-	p.Plot.Plant(row, col, &crop)
+	p.Plot.Plant(row, col, crop)
 	fmt.Printf("Planted %s at row %d, column %d.\n", crop.Name, row, col)
 
 	p.SeedStorage[crop.Name]--
@@ -97,8 +99,22 @@ func (p *Player) PlantCrop(row, col int, crop Crop) error {
 }
 
 // GROWING THE PLAYER'S PLOT
-func (p *Player) GrowPlot(numRows, numCols int) {
+func (p *Player) GrowPlotPlayer(numRows int, numCols int) {
 	p.Plot = p.Plot.GrowPlot(numRows, numCols)
+}
+
+// HARVESTING THE PLAYER'S CROPS
+func (p *Player) HarvestAll() {
+	harvestedCrops := p.Plot.HarvestAll()
+
+	// Adds all harvested crops into inventory
+	for key, value := range harvestedCrops {
+		if quantity, ok := p.CropInventory[key]; ok {
+			p.CropInventory[key] = quantity + value
+		} else {
+			p.CropInventory[key] = value
+		}
+	}
 }
 
 // DISPLAY PLAYER'S INVENTORY
@@ -109,7 +125,7 @@ func (p *Player) DisplayInfo() {
 	for crop, count := range p.SeedStorage {
 		fmt.Printf("  %s: %d\n", crop, count)
 	}
-
+	fmt.Println("Day: ", p.Day)
 	if len(p.CropInventory) == 0 {
 		fmt.Println("Crop Inventory: No harvest yet.")
 	} else {
