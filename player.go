@@ -14,6 +14,7 @@ type Player struct {
 	Points        int
 	SeedStorage   map[string]int // Tracks the player's available seeds (e.g., carrot seeds)
 	CropInventory map[string]int // Tracks harvested crops (e.g., carrots, potatoes)
+	CropInventory map[string]int // Tracks harvested crops (e.g., carrots, potatoes)
 	Plot          *Plot
 	Day           int
 }
@@ -85,13 +86,13 @@ func SavePlayer(player Player) {
 }
 
 // PLANTING CROP IN THE PLAYER'S PLOT
-func (p *Player) PlantCrop(row, col int, crop Crop) error {
-	//Check if the player has enough seeds to plant
+func (p *Player) PlantCrop(row, col int, crop *Crop) error {
+	// Check if the player has enough seeds to plant
 	if p.SeedStorage[crop.Name] <= 0 {
 		return fmt.Errorf("not enough %s seeds to plant", crop.Name)
 	}
 
-	p.Plot.Plant(row, col, &crop)
+	p.Plot.Plant(row, col, crop)
 	fmt.Printf("Planted %s at row %d, column %d.\n", crop.Name, row, col)
 
 	p.SeedStorage[crop.Name]--
@@ -100,7 +101,6 @@ func (p *Player) PlantCrop(row, col int, crop Crop) error {
 
 // GROWING THE PLAYER'S PLOT
 func (p *Player) GrowPlotPlayer(numRows int, numCols int) {
-	fmt.Println("ANDHERE!")
 	p.Plot = p.Plot.GrowPlot(numRows, numCols)
 }
 

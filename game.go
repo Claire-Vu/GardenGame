@@ -35,7 +35,7 @@ func main() {
 		// Ask what user wants to do
 		var choice int
 		fmt.Print("Enter your choice (1-6): ")
-		fmt.Scan(&choice)
+		fmt.Scanln(&choice)
 
 		// Validate the input
 		if choice < 1 || choice > 6 {
@@ -45,10 +45,10 @@ func main() {
 		// PlANT COMMAND
 		if choice == 1 {
 			// Ask the player what crop they want to plant
-			cropName, symbol, err := AskWhatToPlant(&player)
+			cropName, err := AskWhatToPlant(&player)
 			for err != nil {
 				fmt.Println(err)
-				cropName, symbol, err = AskWhatToPlant(&player)
+				cropName, err = AskWhatToPlant(&player)
 			}
 			// Ask where to plant the crop
 			row, col, err := player.AskWhereToPlant()
@@ -56,16 +56,22 @@ func main() {
 				fmt.Println(err)
 				row, col, err = player.AskWhereToPlant()
 			}
-			//cropObject := createCrop(cropName)
 
-			// Plant the crop
-			player.PlantCrop(row, col, Crop{Name: cropName, Symbol: symbol, FullyGrown: false})
+			// Plant the crop -- CROP OBJECT (YAY!)
+			crop, err := getCropObject(cropName)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			player.PlantCrop(row, col, crop)
 
 		}
+
 		// HARVEST COMMAND
 		if choice == 2 {
 			player.HarvestAll()
 		}
+
 		// REMOVE COMMAND
 		if choice == 3 {
 			var row, col int
@@ -75,15 +81,18 @@ func main() {
 			fmt.Scan(&col)
 			player.Plot.removeItem(row, col)
 		}
+
 		// SHOP
 		if choice == 4 {
 			// GO TO SHOP (PRINT SHOP MENU AND COMMANDS)
 		}
+
 		// END DAY
 		if choice == 5 {
 			player.Plot.updateCrops()
 			player.Day += 1
 		}
+
 		// EXIT
 		if choice == 6 {
 			fmt.Println("Exiting the game...")
@@ -92,11 +101,11 @@ func main() {
 
 		player.updatePlot()
 
+		player.updatePlot()
 		// Saves the player data after each action
 		SavePlayer(player)
 
 		fmt.Println("Game saved!")
-
 		// Display the updated player information
 		fmt.Println("\n---Current Status---")
 		player.DisplayInfo()
@@ -117,7 +126,7 @@ func (p *Player) printMenu() {
 }
 
 // WHAT TO PLANT? - This will be Elaine's part about the store.
-func AskWhatToPlant(player *Player) (string, string, error) {
+func AskWhatToPlant(player *Player) (string, error) {
 	var cropName string
 	fmt.Println("What crop would you like to plant?")
 	fmt.Println("Available crops: carrot, potato, corn, pumpkin, garlic")
@@ -129,31 +138,12 @@ func AskWhatToPlant(player *Player) (string, string, error) {
 		fmt.Println("Exiting the game...")
 		os.Exit(0)
 	}
-
 	cropName = strings.ToLower(cropName)
-
-	// Map of available crops and their symbols
-	cropData := map[string]struct {
-		symbol string
-	}{
-		"carrot":  {"🥕"},
-		"potato":  {"🥔"},
-		"corn":    {"🌽"},
-		"pumpkin": {"🎃"},
-		"garlic":  {"🧄"},
-	}
-
-	// Validate crop choice
-	data, exists := cropData[cropName]
-	if !exists {
-		return "", "", fmt.Errorf("Invalid crop choice")
-	}
-
 	if player.SeedStorage[cropName] <= 0 {
-		return "", "", fmt.Errorf("You don't have any %s seeds left.", cropName)
+		return "", fmt.Errorf("You don't have any %s seeds left.", cropName)
 	}
 
-	return cropName, data.symbol, nil
+	return cropName, nil
 }
 
 // WHERE TO PLANT?
