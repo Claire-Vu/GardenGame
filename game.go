@@ -3,11 +3,14 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
+	"runtime"
 	"strings"
 )
 
 // MAIN GAME
 func main() {
+	ClearConsole()
 	fmt.Println("Welcome to the Farming Simulation Game!")
 	fmt.Println("Are you a new player or continuing? (Type 'new' or 'continue')")
 	var playerType string
@@ -37,9 +40,12 @@ func main() {
 		fmt.Print("Enter your choice (1-6): ")
 		fmt.Scanln(&choice)
 
+		// Error Message
+		var errMessage error = nil
+
 		// Validate the input
 		if choice < 1 || choice > 6 {
-			fmt.Println("Invalid command. Please choose a valid option between 1 and 6.")
+			errMessage = fmt.Errorf("Invalid command. Please choose a valid option between 1 and 6.")
 		}
 
 		// PlANT COMMAND
@@ -63,7 +69,12 @@ func main() {
 				fmt.Println(err)
 				return
 			}
-			player.PlantCrop(row, col, crop)
+
+			// if cannot plant because there is something already there
+			errPlot := player.PlantCrop(row, col, crop)
+			if errPlot != nil {
+				errMessage = errPlot
+			}
 
 		}
 
@@ -79,7 +90,10 @@ func main() {
 			fmt.Scan(&row)
 			fmt.Print("Enter the col: ")
 			fmt.Scan(&col)
-			player.Plot.removeItem(row, col)
+			err := player.Plot.removeItem(row, col)
+			if err != nil {
+				errMessage = err
+			}
 		}
 
 		// SHOP
@@ -102,7 +116,11 @@ func main() {
 		player.updatePlot()
 		// Saves the player data after each action
 		SavePlayer(player)
+		ClearConsole()
 
+		if errMessage != nil {
+			fmt.Println(errMessage)
+		}
 		fmt.Println("Game saved!")
 		// Display the updated player information
 		fmt.Println("\n---Current Status---")
@@ -203,5 +221,20 @@ func (p *Player) updatePlot() {
 		p.GrowPlotPlayer(2, 2)
 		p.Plot.PlotLevel++
 		fmt.Println("Your plot was automatically upgraded!")
+	}
+}
+
+// ClearConsole clears the terminal screen based on the operating system.
+func ClearConsole() {
+	// Checks the operating system
+	if runtime.GOOS == "windows" {
+		cmd := exec.Command("cmd", "/c", "cls")
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+	} else {
+		// Unix system
+		cmd := exec.Command("clear")
+		cmd.Stdout = os.Stdout
+		cmd.Run()
 	}
 }

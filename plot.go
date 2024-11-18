@@ -81,16 +81,16 @@ func (g *Plot) printGarden() {
 	}
 }
 
-func (g *Plot) Plant(row, col int, crop *Crop) {
+func (g *Plot) Plant(row, col int, crop *Crop) error {
 	if row >= 0 && row < g.Rows && col >= 0 && col < g.Cols {
 		if g.Plot[row][col] == nil {
 			g.Plot[row][col] = crop
-			fmt.Println("Crop successfully planted!")
+			return nil
 		} else {
-			fmt.Println("Cannot plant at that location: There is already a crop at that location!")
+			return fmt.Errorf("Cannot plant at that location: There is already a crop at that location!")
 		}
 	} else {
-		fmt.Println("Cannot plant: the row/col is outside the Plot")
+		return fmt.Errorf("Cannot plant: the row/col is outside the Plot")
 	}
 }
 
@@ -124,16 +124,16 @@ func (g *Plot) HarvestAll() map[string]int {
 	return harvestedCrop
 }
 
-func (g *Plot) removeItem(row, col int) {
+func (g *Plot) removeItem(row, col int) error {
 	if row >= 0 && row < g.Rows && col >= 0 && col < g.Cols {
 		if g.Plot[row][col] != nil {
 			g.Plot[row][col] = nil
-			fmt.Println("Crop successfully removed!")
+			return nil
 		} else {
-			fmt.Println("There is no crop to remove.")
+			return fmt.Errorf("There is no crop to remove.")
 		}
 	} else {
-		fmt.Println("Cannot remove: the row/col is outside the Plot")
+		return fmt.Errorf("Cannot remove: the row/col is outside the Plot")
 	}
 }
 

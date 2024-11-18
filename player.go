@@ -91,10 +91,16 @@ func (p *Player) PlantCrop(row, col int, crop *Crop) error {
 		return fmt.Errorf("not enough %s seeds to plant", crop.Name)
 	}
 
-	p.Plot.Plant(row, col, crop)
+	// Attempt to plant the crop and handle any error returned
+	err := p.Plot.Plant(row, col, crop)
+	if err != nil {
+		return err
+	}
+
+	// Deduct seed after successful planting
+	p.SeedStorage[crop.Name]--
 	fmt.Printf("Planted %s at row %d, column %d.\n", crop.Name, row, col)
 
-	p.SeedStorage[crop.Name]--
 	return nil
 }
 
