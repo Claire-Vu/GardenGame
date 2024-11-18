@@ -14,7 +14,6 @@ type Player struct {
 	Points        int
 	SeedStorage   map[string]int // Tracks the player's available seeds (e.g., carrot seeds)
 	CropInventory map[string]int // Tracks harvested crops (e.g., carrots, potatoes)
-	CropInventory map[string]int // Tracks harvested crops (e.g., carrots, potatoes)
 	Plot          *Plot
 	Day           int
 }
