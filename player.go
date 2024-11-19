@@ -12,6 +12,7 @@ import (
 type Player struct {
 	Username      string
 	Points        int
+	Gold          int
 	SeedStorage   map[string]int // Tracks the player's available seeds (e.g., carrot seeds)
 	CropInventory map[string]int // Tracks harvested crops (e.g., carrots, potatoes)
 	Plot          *Plot
@@ -24,6 +25,7 @@ func CreateNewPlayer(name string, rows int, cols int) Player {
 	player := Player{
 		Username: username,
 		Points:   0,
+		Gold:     0,
 		SeedStorage: map[string]int{
 			"carrot":  1,
 			"potato":  1,
@@ -127,6 +129,7 @@ func (p *Player) HarvestAll() {
 func (p *Player) DisplayInfo() {
 	fmt.Printf("Username: %s\n", p.Username)
 	fmt.Printf("Points: %d\n", p.Points)
+	fmt.Printf("Gold: %d\n", p.Gold)
 	fmt.Println("Seed Storage:")
 	for crop, count := range p.SeedStorage {
 		fmt.Printf("  %s: %d\n", crop, count)

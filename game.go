@@ -203,6 +203,8 @@ func HandleExistingPlayer() Player {
 	player.DisplayInfo()
 	return player
 }
+
+// GROW PLAYER'S PLOT
 func (p *Player) updatePlot() {
 	// If player reaches treshold for plot upgrade then auto grow plot
 	if p.Points == 200 && p.Plot.PlotLevel == 0 {
