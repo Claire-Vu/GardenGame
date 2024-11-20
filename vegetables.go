@@ -16,6 +16,7 @@ type Crop struct {
 	Symbol         string
 	SellPrice      int
 	FullyGrown     bool // (0 = not planted, 1 = growing, 2 = fully grown)
+
 }
 
 // Map to hold crops by their name

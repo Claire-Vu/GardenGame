@@ -11,9 +11,43 @@
 
 package main
 
-//import (
-//	"fmt"
-//)
+import (
+	"fmt"
+)
+
+func (p *Player) sellItems(cropToSell string, quantityToSell int) error {
+	// Ok: Identifies if player cropInventory has key cropToSell
+	if quantityInInventory, ok := p.CropInventory[cropToSell]; ok {
+		// Checks if has enough quantity to sell
+		if quantityInInventory >= quantityToSell {
+			// Sells the crops
+
+			// Crop object we are selling
+			// getCropObject returns the cropObject or error
+			cropObject, notValidCrop := getCropObject(cropToSell)
+
+			// If no error
+			if notValidCrop == nil {
+				// gives gold to player
+				p.Gold += (cropObject.SellPrice * quantityToSell)
+				//updates points
+				p.Points += quantityToSell
+				// takes away crop
+				p.CropInventory[cropToSell] -= quantityToSell
+				// if crop quantity becomes 0 then remove it from the inventory
+				if p.CropInventory[cropToSell] == 0 {
+					delete(p.CropInventory, cropToSell)
+				}
+				// return no error
+				return nil
+			}
+
+		} else {
+			return fmt.Errorf("INVALID: Not enough crops to sell")
+		}
+	}
+	return fmt.Errorf("INVALID: You do not have crop: %s", cropToSell)
+}
 
 //TODO: bring in the player object/connect the player object to the code
 //TODO: get prices of different Fruit and Vegetable Objects

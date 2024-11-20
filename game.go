@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+	"time"
 )
 
 // MAIN GAME
@@ -99,6 +100,51 @@ func main() {
 		// SHOP
 		if choice == 4 {
 			// GO TO SHOP (PRINT SHOP MENU AND COMMANDS)
+
+			// Print shop menu
+
+			// keeps running until player exits shop
+			inShop := true
+			for inShop {
+				// Shop error message
+				var shopErrorMessage error = nil
+
+				// promts user for shop action
+				var action int
+				fmt.Print("Enter your choice (1- SELL, 2- EXIT): ")
+				fmt.Scanln(&action)
+
+				// If selling option chosen
+				if action == 1 {
+					var cropToSell string
+					fmt.Print("What crop would you like to sell? ")
+					fmt.Scanln(&cropToSell)
+
+					var quantityToSell int
+					fmt.Print("How many would you like to sell? ")
+					fmt.Scanln(&quantityToSell)
+
+					// Calls function to perform action
+					err := player.sellItems(strings.ToLower(cropToSell), quantityToSell)
+					// If error then change errorMessage to the returned error message
+					if err != nil {
+						shopErrorMessage = err
+					}
+				}
+				// If exiting the shop
+				if action == 2 {
+					fmt.Println("Exiting the shop...")
+					inShop = false
+				}
+				ClearConsole()
+				SavePlayer(player)
+				player.DisplayInfo()
+				if shopErrorMessage != nil {
+					fmt.Println()
+					fmt.Println(shopErrorMessage)
+					fmt.Println()
+				}
+			}
 		}
 
 		// END DAY
@@ -120,8 +166,14 @@ func main() {
 
 		if errMessage != nil {
 			fmt.Println(errMessage)
+
+			// Waits 2 seconds before clearing console so can read error
+			fmt.Println("Loading game...")
+			time.Sleep(2 * time.Second)
+			ClearConsole()
 		}
 		fmt.Println("Game saved!")
+
 		// Display the updated player information
 		fmt.Println("\n---Current Status---")
 		player.DisplayInfo()
