@@ -1,7 +1,10 @@
 package main
 
-// This file is for managing fruit and vegetable objects.
-// Creates Crop struct, maps unique structs to cropDict by string Crop.Name.
+import (
+	"fmt"
+)
+
+// If implemented, this file is for assigning characteristics to fruit/vegetables.
 
 // Crop is struct for both fruits and vegetables
 type Crop struct {
@@ -15,43 +18,28 @@ type Crop struct {
 	FullyGrown     bool   // TimePlanted == ProductionDays, ready to sell
 }
 
-var cropDict = map[string]Crop{
-
-	//Vegetables: object deleted after harvest
-	"carrot": Crop{"Vegetable", "Carrot", 20, 4, 0, "🥕", 10, false},
-	"potato": Crop{"Vegetable", "Potato", 40, 6, 0, "🥔", 20, false},
-	"garlic": Crop{"Vegetable", "Garlic", 60, 8, 0, "🧄", 40, false},
-	"corn": Crop{"Vegetable", "Corn", 100, 8, 0, "🌽", 30, false},
-	"pumpkin": Crop{"Vegetable", "Pumpkin", 100, 14, 0, "🎃", 320, false},
-
-	//Fruits: TimePlanted reset to zero after harvest
-	"apple": Crop{"Fruit", "Apple", 70, 6, 0, "🍎", 10, false},
-	"orange": Crop{"Fruit", "Orange", 70, 6, 0, "🍊", 10, false},
-	"mango": Crop{"Fruit", "Mango", 110, 8, 0, "🥭", 20, false},
-	"peach": Crop{"Fruit", "Peach", 140, 8, 0, "🍑", 30, false},
-	"banana": Crop{"Fruit", "Banana", 180, 12, 0, "🍌", 45, false},
-
-},
-
-//takes lowercase crop name, returns data structure of new crop
-func createCrop(cropName string) *Crop {
-	return cropDict[cropName]
+// Map to hold crops by their name
+var crops = map[string]*Crop{
+	"carrot":  {"Vegetable", "carrot", 20, 4, 0, "🥕", 10, false},
+	"potato":  {"Vegetable", "potato", 40, 6, 0, "🥔", 20, false},
+	"garlic":  {"Vegetable", "garlic", 60, 8, 0, "🧄", 40, false},
+	"corn":    {"Vegetable", "corn", 100, 8, 0, "🌽", 30, false},
+	"pumpkin": {"Vegetable", "pumpkin", 100, 14, 0, "🎃", 320, false},
+	"apple":   {"Fruit", "apple", 70, 6, 0, "🍎", 10, false},
+	"orange":  {"Fruit", "orange", 70, 6, 0, "🍊", 10, false},
+	"mango":   {"Fruit", "mango", 110, 8, 0, "🥭", 20, false},
+	"peach":   {"Fruit", "peach", 140, 8, 0, "🍑", 30, false},
+	"banana":  {"Fruit", "banana", 180, 12, 0, "🍌", 45, false},
 }
 
-/* DEFINING CROPS AS VARIABLES, OBSOLETE DUE TO CROPDICT
+// Function to get a crop by its name
+func getCropObject(cropName string) (*Crop, error) {
+	crop, exists := crops[cropName]
+	if !exists {
+		return nil, fmt.Errorf("crop '%s' not found", cropName)
+	}
 
-//Vegetables: object deleted after harvest
-var carrot = Crop{"Vegetable", "Carrot", 20, 4, 0, "🥕", 10, false}
-var potato = Crop{"Vegetable", "Potato", 40, 6, 0, "🥔", 20, false}
-var garlic = Crop{"Vegetable", "Garlic", 60, 8, 0, "🧄", 40, false}
-var corn = Crop{"Vegetable", "Corn", 100, 8, 0, "🌽", 30, false}
-var pumpkin = Crop{"Vegetable", "Pumpkin", 100, 14, 0, "🎃", 320, false}
+	return crop, nil
+}
 
-//Fruits: TimePlanted reset to zero after harvest
-var apple = Crop{"Fruit", "Apple", 70, 6, 0, "🍎", 10, false}
-var orange = Crop{"Fruit", "Orange", 70, 6, 0, "🍊", 10, false}
-var mango = Crop{"Fruit", "Mango", 110, 8, 0, "🥭", 20, false}
-var peach = Crop{"Fruit", "Peach", 140, 8, 0, "🍑", 30, false}
-var banana = Crop{"Fruit", "Banana", 180, 12, 0, "🍌", 45, false}
-
-*/
+// potential difference: fruits continuing after 1 harvest

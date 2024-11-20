@@ -3,11 +3,14 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
+	"runtime"
 	"strings"
 )
 
 // MAIN GAME
 func main() {
+	ClearConsole()
 	fmt.Println("Welcome to the Farming Simulation Game!")
 	fmt.Println("Are you a new player or continuing? (Type 'new' or 'continue')")
 	var playerType string
@@ -35,35 +38,51 @@ func main() {
 		// Ask what user wants to do
 		var choice int
 		fmt.Print("Enter your choice (1-6): ")
-		fmt.Scan(&choice)
+		fmt.Scanln(&choice)
+
+		// Error Message
+		var errMessage error = nil
 
 		// Validate the input
 		if choice < 1 || choice > 6 {
-			fmt.Println("Invalid command. Please choose a valid option between 1 and 6.")
+			errMessage = fmt.Errorf("Invalid command. Please choose a valid option between 1 and 6.")
 		}
 
 		// PlANT COMMAND
 		if choice == 1 {
 			// Ask the player what crop they want to plant
-			cropName, symbol, err := AskWhatToPlant(&player)
+			cropName, err := AskWhatToPlant(&player)
 			for err != nil {
 				fmt.Println(err)
-				cropName, symbol, err = AskWhatToPlant(&player)
+				cropName, err = AskWhatToPlant(&player)
 			}
 			// Ask where to plant the crop
-			row, col, err := AskWhereToPlant()
+			row, col, err := player.AskWhereToPlant()
 			for err != nil {
 				fmt.Println(err)
-				row, col, err = AskWhereToPlant()
+				row, col, err = player.AskWhereToPlant()
 			}
-			// Plant the crop
-			player.PlantCrop(row, col, Crop{Name: cropName, Symbol: symbol, FullyGrown: false})
+
+			// Plant the crop -- CROP OBJECT (YAY!)
+			crop, err := getCropObject(cropName)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			// if cannot plant because there is something already there
+			errPlot := player.PlantCrop(row, col, crop)
+			if errPlot != nil {
+				errMessage = errPlot
+			}
 
 		}
+
 		// HARVEST COMMAND
 		if choice == 2 {
 			player.HarvestAll()
 		}
+
 		// REMOVE COMMAND
 		if choice == 3 {
 			var row, col int
@@ -71,28 +90,38 @@ func main() {
 			fmt.Scan(&row)
 			fmt.Print("Enter the col: ")
 			fmt.Scan(&col)
-			player.Plot.removeItem(row, col)
+			err := player.Plot.removeItem(row, col)
+			if err != nil {
+				errMessage = err
+			}
 		}
+
 		// SHOP
 		if choice == 4 {
 			// GO TO SHOP (PRINT SHOP MENU AND COMMANDS)
 		}
+
 		// END DAY
 		if choice == 5 {
 			player.Plot.updateCrops()
 			player.Day += 1
 		}
+
 		// EXIT
 		if choice == 6 {
 			fmt.Println("Exiting the game...")
 			os.Exit(0)
 		}
 
+		player.updatePlot()
 		// Saves the player data after each action
 		SavePlayer(player)
+		ClearConsole()
 
+		if errMessage != nil {
+			fmt.Println(errMessage)
+		}
 		fmt.Println("Game saved!")
-
 		// Display the updated player information
 		fmt.Println("\n---Current Status---")
 		player.DisplayInfo()
@@ -113,7 +142,7 @@ func (p *Player) printMenu() {
 }
 
 // WHAT TO PLANT? - This will be Elaine's part about the store.
-func AskWhatToPlant(player *Player) (string, string, error) {
+func AskWhatToPlant(player *Player) (string, error) {
 	var cropName string
 	fmt.Println("What crop would you like to plant?")
 	fmt.Println("Available crops: carrot, potato, corn, pumpkin, garlic")
@@ -125,42 +154,23 @@ func AskWhatToPlant(player *Player) (string, string, error) {
 		fmt.Println("Exiting the game...")
 		os.Exit(0)
 	}
-
 	cropName = strings.ToLower(cropName)
-
-	// Map of available crops and their symbols
-	cropData := map[string]struct {
-		symbol string
-	}{
-		"carrot":  {"🥕"},
-		"potato":  {"🥔"},
-		"corn":    {"🌽"},
-		"pumpkin": {"🎃"},
-		"garlic":  {"🧄"},
-	}
-
-	// Validate crop choice
-	data, exists := cropData[cropName]
-	if !exists {
-		return "", "", fmt.Errorf("Invalid crop choice")
-	}
-
 	if player.SeedStorage[cropName] <= 0 {
-		return "", "", fmt.Errorf("You don't have any %s seeds left.", cropName)
+		return "", fmt.Errorf("You don't have any %s seeds left.", cropName)
 	}
 
-	return cropName, data.symbol, nil
+	return cropName, nil
 }
 
 // WHERE TO PLANT?
-func AskWhereToPlant() (int, int, error) {
+func (p *Player) AskWhereToPlant() (int, int, error) {
 	var row, col int
 	fmt.Println("Enter the row and column (e.g., 0 1) where you want to plant the crop:")
 	fmt.Scanln(&row, &col)
 
 	// Ensure the input is within bounds
-	if row < 0 || row > 4 || col < 0 || col > 4 {
-		return 0, 0, fmt.Errorf("invalid row or column, must be between 0 and 4")
+	if row < 0 || row >= p.Plot.Rows || col < 0 || col >= p.Plot.Cols {
+		return 0, 0, fmt.Errorf("invalid row or column, must be between 0 and %d", p.Plot.Rows-1)
 	}
 
 	return row, col, nil
@@ -192,4 +202,41 @@ func HandleExistingPlayer() Player {
 	fmt.Println("\n---Current Status---")
 	player.DisplayInfo()
 	return player
+}
+
+// GROW PLAYER'S PLOT
+func (p *Player) updatePlot() {
+	// If player reaches treshold for plot upgrade then auto grow plot
+	if p.Points == 200 && p.Plot.PlotLevel == 0 {
+		p.GrowPlotPlayer(2, 2)
+		p.Plot.PlotLevel++
+		fmt.Println("Your plot was automatically upgraded!")
+	}
+	// only upgrades the plot when player reaches the specified points
+	// and when plot hasn't been updated yet
+	if p.Points == 400 && p.Plot.PlotLevel == 1 {
+		p.GrowPlotPlayer(2, 2)
+		p.Plot.PlotLevel++
+		fmt.Println("Your plot was automatically upgraded!")
+	}
+	if p.Points == 600 && p.Plot.PlotLevel == 2 {
+		p.GrowPlotPlayer(2, 2)
+		p.Plot.PlotLevel++
+		fmt.Println("Your plot was automatically upgraded!")
+	}
+}
+
+// ClearConsole clears the terminal screen based on the operating system.
+func ClearConsole() {
+	// Checks the operating system
+	if runtime.GOOS == "windows" {
+		cmd := exec.Command("cmd", "/c", "cls")
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+	} else {
+		// Unix system
+		cmd := exec.Command("clear")
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+	}
 }

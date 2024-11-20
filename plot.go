@@ -5,7 +5,8 @@ import "fmt"
 type Plot struct {
 	Rows, Cols int
 	//Initializes a 2D array of pointers to Crop objects
-	Plot [][]*Crop
+	Plot      [][]*Crop
+	PlotLevel int
 }
 
 // Initializes a garden Plot of size Rows x Cols
@@ -14,7 +15,8 @@ func CreatePlot(Rows, Cols int) *Plot {
 		Rows: Rows,
 		Cols: Cols,
 		// Makes an array with of Rows length
-		Plot: make([][]*Crop, Rows),
+		Plot:      make([][]*Crop, Rows),
+		PlotLevel: 0,
 	}
 
 	// Initialize the 2D slice with empty soil (nil)
@@ -79,24 +81,24 @@ func (g *Plot) printGarden() {
 	}
 }
 
-func (g *Plot) Plant(row, col int, crop *Crop) {
+func (g *Plot) Plant(row, col int, crop *Crop) error {
 	if row >= 0 && row < g.Rows && col >= 0 && col < g.Cols {
 		if g.Plot[row][col] == nil {
 			g.Plot[row][col] = crop
-			fmt.Println("Crop successfully planted!")
+			return nil
 		} else {
-			fmt.Println("Cannot plant at that location: There is already a crop at that location!")
+			return fmt.Errorf("Cannot plant at that location: There is already a crop at that location!")
 		}
 	} else {
-		fmt.Println("Cannot plant: the row/col is outside the Plot")
+		return fmt.Errorf("Cannot plant: the row/col is outside the Plot")
 	}
 }
 
 // Function that harvests all fully grown crops and returns map of all harvested items
-// with key being the crop object that was harvested and value being the quantity harvested
+// with key being the crop names that was harvested and value being the quantity harvested
 
-func (g *Plot) HarvestAll() map[*Crop]int {
-	harvestedCrop := make(map[*Crop]int)
+func (g *Plot) HarvestAll() map[string]int {
+	harvestedCrop := make(map[string]int)
 	for i := 0; i < g.Rows; i++ {
 		for j := 0; j < g.Cols; j++ {
 			// If there is a crop and it is fullyGrown
@@ -104,10 +106,10 @@ func (g *Plot) HarvestAll() map[*Crop]int {
 
 				// Updates harvestedCrop map, if the crop object
 				// already exist then add to quantity, else add it to map
-				if quantity, ok := harvestedCrop[g.Plot[i][j]]; ok {
-					harvestedCrop[g.Plot[i][j]] = quantity + 1
+				if quantity, ok := harvestedCrop[g.Plot[i][j].Name]; ok {
+					harvestedCrop[g.Plot[i][j].Name] = quantity + 1
 				} else {
-					harvestedCrop[g.Plot[i][j]] = 1
+					harvestedCrop[g.Plot[i][j].Name] = 1
 				}
 				// If it is a fruit then the growth days gets reset
 				if g.Plot[i][j].Type == "Fruit" {
@@ -122,16 +124,16 @@ func (g *Plot) HarvestAll() map[*Crop]int {
 	return harvestedCrop
 }
 
-func (g *Plot) removeItem(row, col int) {
+func (g *Plot) removeItem(row, col int) error {
 	if row >= 0 && row < g.Rows && col >= 0 && col < g.Cols {
 		if g.Plot[row][col] != nil {
 			g.Plot[row][col] = nil
-			fmt.Println("Crop successfully removed!")
+			return nil
 		} else {
-			fmt.Println("There is no crop to remove.")
+			return fmt.Errorf("There is no crop to remove.")
 		}
 	} else {
-		fmt.Println("Cannot remove: the row/col is outside the Plot")
+		return fmt.Errorf("Cannot remove: the row/col is outside the Plot")
 	}
 }
 
