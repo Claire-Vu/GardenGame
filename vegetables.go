@@ -19,7 +19,7 @@ type Crop struct {
 }
 
 // Map to hold crops by their name
-var crops = map[string]*Crop{
+var Crops = map[string]*Crop{
 	"carrot":  {"Vegetable", "carrot", 20, 4, 0, "🥕", 10, false},
 	"potato":  {"Vegetable", "potato", 40, 6, 0, "🥔", 20, false},
 	"garlic":  {"Vegetable", "garlic", 60, 8, 0, "🧄", 40, false},
@@ -34,7 +34,7 @@ var crops = map[string]*Crop{
 
 // Function to get a crop by its name
 func getCropObject(cropName string) (*Crop, error) {
-	crop, exists := crops[cropName]
+	crop, exists := Crops[cropName]
 	if !exists {
 		return nil, fmt.Errorf("crop '%s' not found", cropName)
 	}
