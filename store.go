@@ -1,19 +1,119 @@
 //Elaine-started store-managing file, started on 11/10/24
-//LIKELY GOING TO TEST-PUSH THIS CODE TO A BRANCH TO MAKE SURE I CAN DO IT
 
-//store.go should work with, in a text-based format:
-// -how many, what kinds of F&V objects currently held by player object
-// -player's gold
-// -unlocked items in store (if unlocks based on playthrough points)
-// -how much each store item costs (Fruit and Vegetable objects)
-// -option to buy a quantity of the store item up until all player gold used
-// -[MAYBE] a way to sell grown crops (depending on if they're sold from the field or here)
+//store.go manages the shop, primarily used for buying and selling seeds and crops
+
+//functions:
+//main(): runs code
+//stringGold(): returns current player object's gold as a string
+//getUnlocked(): returns list of strings with all unlocked crops, along with their buy and sell prices
+//printUnlocked(): prints getUnlocked() list one by one
+//buyItems(): manages player inventory adding seeds, player gold decrease
+//sellItems(): manages player inventory removing fully grown crops, player gold and points++
 
 package main
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 )
+
+// TODO: IS THERE A WAY TO PASS PLAYER OBJECT INTO MAIN
+func (p *Player) StoreFront() {
+	fmt.Printf("Welcome to the shop! You currently have %d gold.", p.Gold)
+	fmt.Println("To buy items, type \"buy\".")
+	fmt.Println("To sell items, type \"sell\".")
+	fmt.Println("To leave the shop, type \"E\".")
+	var shopChoice string // user input
+	fmt.Scanln(&shopChoice)
+	if strings.ToLower(shopChoice) == "e" {
+		fmt.Println("Goodbye! We hope you'll shop with us again soon :)")
+		//TODO: LEAVE SHOP, RETURN TO PLOT
+	}
+	// BUYING:
+	if strings.ToLower(shopChoice) == "buy" {
+		var cropList = p.getUnlocked()
+		printUnlocked(cropList)
+		fmt.Println("To buy a listed item, type its name and press Enter.")
+		var buyChoice string // user input
+		fmt.Scanln(&buyChoice)
+		//TODO: IS THE BELOW LINE WRITTEN RIGHT
+		if buyChoice != "" {
+			fmt.Printf("How many %s would you like to buy? You have %d gold.", buyChoice, p.Gold)
+			var quantityToBuy int // user input
+			fmt.Scanln(&quantityToBuy)
+			p.buyItems(buyChoice, quantityToBuy)
+		}
+	}
+	// SELLING:
+	if strings.ToLower(shopChoice) == "sell" {
+		var cropList = p.getUnlocked()
+		printUnlocked(cropList)
+		fmt.Println("To sell a listed item, type its name and press Enter.")
+		var sellChoice string // user input
+		fmt.Scanln(&sellChoice)
+		//TODO: IS THE BELOW LINE WRITTEN RIGHT
+		if sellChoice != "" {
+			fmt.Printf("How many %s would you like to sell?", sellChoice)
+			var quantityToSell int // user input
+			fmt.Scanln(&quantityToSell)
+			p.sellItems(sellChoice, quantityToSell)
+		}
+	} else { // invalid input:
+		fmt.Println("Input not understood. Please type 'buy', 'sell', or 'E'.")
+	}
+}
+
+// Returns player gold as a string
+// func (p *Player) stringGold() int {
+// 	return p.Gold
+// }
+
+func (p *Player) getUnlocked() []string {
+	var cropList []string
+	for i := 0; i < len(CropKeys); i++ {
+		curCrop, err := getCropObject(CropKeys[i])
+		if err != nil {
+			// print error message
+		}
+		if curCrop.UnlockPoints <= p.Points { // If player has enough points for crop
+			// Format and append the crop details to the list
+			cropDetails := curCrop.Name + " - " + strconv.Itoa(curCrop.Cost) + " - Sell for " + strconv.Itoa(curCrop.SellPrice)
+			cropList = append(cropList, cropDetails)
+		}
+	}
+	return cropList
+}
+
+// prints the getUnlocked() list line by line
+func printUnlocked(unlockedList []string) {
+	for i := 0; i < len(unlockedList); i++ {
+		fmt.Println(unlockedList[i])
+	}
+}
+
+func (p *Player) buyItems(cropToBuy string, quantityToBuy int) error {
+	cropObject, notValidCrop := getCropObject(cropToBuy)
+	// Checks player gold >= cost
+	if p.Gold >= (cropObject.Cost * quantityToBuy) {
+		// Buys the crops
+
+		// If no error
+		if notValidCrop == nil {
+			// removes gold from player
+			p.Gold -= (cropObject.Cost * quantityToBuy)
+			// adds crop seed to inventory
+			// TODO: DO I NEED TO CHECK TO MAKE SURE SEED INVENTORY ENTRY EXISTS FIRST
+			p.SeedStorage[cropToBuy] += quantityToBuy
+			// return no error
+			return nil
+		}
+
+	} else {
+		return fmt.Errorf("INVALID: Not enough gold to purchase %s %s crops.", strconv.Itoa(quantityToBuy), cropToBuy)
+	}
+	return nil
+}
 
 func (p *Player) sellItems(cropToSell string, quantityToSell int) error {
 	// Ok: Identifies if player cropInventory has key cropToSell
@@ -49,22 +149,6 @@ func (p *Player) sellItems(cropToSell string, quantityToSell int) error {
 	return fmt.Errorf("INVALID: You do not have crop: %s", cropToSell)
 }
 
-//TODO: bring in the player object/connect the player object to the code
-//TODO: get prices of different Fruit and Vegetable Objects
-
-//func main() {
-//fmt.Println("Welcome to the shop!")
-//const items = getUnlocked(Player.gp)
-//storefront(items)
-//}
-
-//TODO: getUnlocked(Player.gp): determines what is unlocked by the amount of
-//points the player has earned. Returns an array formatted like: "8 - Pumpkin Seed (2) - 320 g"
-//Each list item = "NUM TO SELECT - FRUIT/V'S NAME - FRUIT/V'S COST"
-//func getUnlocked(Player.gp) []str {
-//TODO: either construct the list recursively or with a for loop (if go has those)
-//}
-
 // TODO: storefront(getUnlocked's list): interacting with all unlocked items (could be just the getUnlocked() list)
 // allows for selecting an item by entering the number preceding it to buy()
 //func storefront(items) {
@@ -80,16 +164,8 @@ func (p *Player) sellItems(cropToSell string, quantityToSell int) error {
 //after buying, players back at shop menu list until deciding to leave()
 //}
 
-//TODO: buy(Fruit/Vegetable.cost, Player.gp): calculates min/max item quantity
-//that can be purchased with current gold,
-//transfers item(s) to player and gold from player if confirmed
-//returns to storefront() previous menu if cancelled
-
 //TODO leave(): exits shop menu ('E'?)
 //func leave() {
 //fmt.Println("Thank you for shopping with us!")
 //return to field code
 //}
-
-//MAYBE TODO: sell(Player.inventory(?)): allows for player to select how many items to sell. Could
-//be done in a handful of ways (sell all? sell per item?)

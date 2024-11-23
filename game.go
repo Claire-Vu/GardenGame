@@ -104,47 +104,48 @@ func main() {
 			// Print shop menu
 
 			// keeps running until player exits shop
-			inShop := true
-			for inShop {
-				// Shop error message
-				var shopErrorMessage error = nil
+			player.StoreFront()
+			// inShop := true
+			// for inShop {
+			// 	// Shop error message
+			// 	var shopErrorMessage error = nil
 
-				// promts user for shop action
-				var action int
-				fmt.Print("Enter your choice (1- SELL, 2- EXIT): ")
-				fmt.Scanln(&action)
+			// 	// promts user for shop action
+			// 	var action int
+			// 	fmt.Print("Enter your choice (1- SELL, 2- EXIT): ")
+			// 	fmt.Scanln(&action)
 
-				// If selling option chosen
-				if action == 1 {
-					var cropToSell string
-					fmt.Print("What crop would you like to sell? ")
-					fmt.Scanln(&cropToSell)
+			// 	// If selling option chosen
+			// 	if action == 1 {
+			// 		var cropToSell string
+			// 		fmt.Print("What crop would you like to sell? ")
+			// 		fmt.Scanln(&cropToSell)
 
-					var quantityToSell int
-					fmt.Print("How many would you like to sell? ")
-					fmt.Scanln(&quantityToSell)
+			// 		var quantityToSell int
+			// 		fmt.Print("How many would you like to sell? ")
+			// 		fmt.Scanln(&quantityToSell)
 
-					// Calls function to perform action
-					err := player.sellItems(strings.ToLower(cropToSell), quantityToSell)
-					// If error then change errorMessage to the returned error message
-					if err != nil {
-						shopErrorMessage = err
-					}
-				}
-				// If exiting the shop
-				if action == 2 {
-					fmt.Println("Exiting the shop...")
-					inShop = false
-				}
-				ClearConsole()
-				SavePlayer(player)
-				player.DisplayInfo()
-				if shopErrorMessage != nil {
-					fmt.Println()
-					fmt.Println(shopErrorMessage)
-					fmt.Println()
-				}
-			}
+			// 		// Calls function to perform action
+			// 		err := player.sellItems(strings.ToLower(cropToSell), quantityToSell)
+			// 		// If error then change errorMessage to the returned error message
+			// 		if err != nil {
+			// 			shopErrorMessage = err
+			// 		}
+			// 	}
+			// 	// If exiting the shop
+			// 	if action == 2 {
+			// 		fmt.Println("Exiting the shop...")
+			// 		inShop = false
+			// 	}
+			// 	ClearConsole()
+			// 	SavePlayer(player)
+			// 	player.DisplayInfo()
+			// 	if shopErrorMessage != nil {
+			// 		fmt.Println()
+			// 		fmt.Println(shopErrorMessage)
+			// 		fmt.Println()
+			// 	}
+			// }
 		}
 
 		// END DAY
