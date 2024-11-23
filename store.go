@@ -2,119 +2,164 @@
 
 //store.go manages the shop, primarily used for buying and selling seeds and crops
 
+//functions:
+//main(): runs code
+//stringGold(): returns current player object's gold as a string
+//getUnlocked(): returns list of strings with all unlocked crops, along with their buy and sell prices
+//printUnlocked(): prints getUnlocked() list one by one
+//buyItems(): manages player inventory adding seeds, player gold decrease
+//sellItems(): manages player inventory removing fully grown crops, player gold and points++
+
 package main
 
 import (
 	"fmt"
 	"strconv"
 	"strings"
-	//possibly "player.go" or a player file, if needed to access the player's points/gold
 )
 
+// TODO: IS THERE A WAY TO PASS PLAYER OBJECT INTO MAIN
 func main() {
-	fmt.Println("Welcome to the shop!")
-	//TODO: assign player to current player
-	const purchasables = getUnlocked(Player.points)
-	fmt.Println("To select item, type its name and press Enter.")
+	var playerGold = stringGold() // gets player gold as a string
+	fmt.Println("Welcome to the shop! You currently have %s gold.", playerGold)
+	fmt.Println("To buy items, type \"buy\".")
 	fmt.Println("To sell items, type \"sell\".")
-	fmt.println("To leave the shop, type 'E'.")
+	fmt.Println("To leave the shop, type \"E\".")
 	var shopChoice string // user input
 	fmt.Scanln(&shopChoice)
 	if strings.ToLower(shopChoice) == "e" {
 		fmt.Println("Goodbye! We hope you'll shop with us again soon :)")
 		//TODO: LEAVE SHOP, RETURN TO PLOT
 	}
-	if strings.ToLower(shopChoice) == "sell" {
-		sell()
-	} else {
-		var chosen = getCropObject(strings.ToLower(shopChoice))
-		buy(chosen)
-	}
-}
-
-//Returns formatted string list of unlocked crops and buy price
-func getUnlockedBuy(player.Points) []string {
-	var buyList []string
-	for i := 0; i < len(Crops); i++ {
-		buyList[i] = Crops[i][Name] + " - " + Crops[i][Cost]
-		//"FRUIT/V'S NAME - FRUIT/V'S COST" "Pumpkin - 100 g"
-		//if player.Points >= Crop.Unlock... TODO: if we want to do by point
-	}
-	// buyList[len(Crops)] = "SELL CROPS" //opens sell menu
-	return buyList
-}
-
-//Returns formatted string list of crops in player inventory and sell price
-func getUnlockedSell() []string {
-	var sellList []string
-	if len(player.CropInventory) == 0 { //no items in list
-		return sellList
-	} else {
-		for i := 0; i < len(player.CropInventory); i++ {
-			sellList[i] = player.CropInventory[i][Name] + " - " + player.CropInventory[i][SellPrice]
-			//FRUIT/V'S NAME - FRUIT/V'S SELL PRICE" "Pumpkin - 320 g"
+	// BUYING:
+	if strings.ToLower(shopChoice) == "buy" {
+		var cropList = getUnlocked()
+		printUnlocked(cropList)
+		fmt.Println("To buy a listed item, type its name and press Enter.")
+		var buyChoice string // user input
+		fmt.Scanln(&buyChoice)
+		//TODO: IS THE BELOW LINE WRITTEN RIGHT
+		if buyChoice != nil {
+			fmt.Println("How many %s would you like to buy? You have %s gold.", buyChoice, playerGold)
+			var quantityToBuy string // user input
+			fmt.Scanln(&quantityToBuy)
+			buyItems(buyChoice, strconv.Itoa(quantityToBuy))
 		}
 	}
-	return sellList
+	// SELLING:
+	if strings.ToLower(shopChoice) == "sell" {
+		var cropList = getUnlocked()
+		printUnlocked(cropList)
+		fmt.Println("To sell a listed item, type its name and press Enter.")
+		var sellChoice string // user input
+		fmt.Scanln(&sellChoice)
+		//TODO: IS THE BELOW LINE WRITTEN RIGHT
+		if sellChoice != nil {
+			fmt.Println("How many %s would you like to sell?", sellChoice)
+			var quantityToSell string // user input
+			fmt.Scanln(&quantityToSell)
+			sellItems(sellChoice, quantityToSell)
+		}
+	} else { // invalid input:
+		fmt.Println("Input not understood. Please type 'buy', 'sell', or 'E'.")
+	}
 }
 
-// prints the getUnlockedBuy() or getUnlockedSell() list line by line
+// Returns player gold as a string
+func (p *Player) stringGold() int {
+	return strconv.Itoa(p.Gold)
+}
+
+func (p *Player) getUnlocked() []string {
+	var cropList []string
+	var index int = 0 // for adding entry to next cropList spot
+	for i := 0; i < len(CropKeys); i++ {
+		var curCrop = getCropObject(CropKeys[i])
+		if curCrop.UnlockPoints <= p.Points { // If player has enough points for crop
+			cropList[index] = curCrop.Name + " - " + curCrop.Cost + " - Sell for " + curCrop.SellPrice
+			index++
+		}
+	}
+	return cropList
+}
+
+// prints the getUnlocked() list line by line
 func printUnlocked(unlockedList []string) {
 	for i := 0; i < len(unlockedList); i++ {
 		fmt.Println(unlockedList[i])
 	}
 }
 
-// TODO: storefront(list): interacting with all unlocked items (could be just the getUnlocked() list)
-// allows for selecting an item by entering the number preceding it to buy()
-//func storefront(unlockedList []string) {
-	
-	//shopChoice = strconv.Atoi(shopChoice)                  //converts input to integer
-	///if shopChoice >= len(unlockedList) || shopChoice < 1 { //out of range
-	///	fmt.Println("ERROR: given number not in range")
-	///} else {
-	///	if shopChoice == len(unlockedList) { // if chose final sell option
-	///		sell()
-	///	} else {
-	///		buy()
-	///	}
+func (p *Player) buyItems(cropToBuy string, quantityToBuy int) error {
+	cropObject, notValidCrop := getCropObject(cropToBuy)
+	// Checks player gold >= cost
+	if p.Gold >= (cropObject.Cost * quantityToBuy) {
+		// Buys the crops
 
-	//after buying, players back at shop menu list until deciding to leave()
-//}
+		// If no error
+		if notValidCrop == nil {
+			// removes gold from player
+			p.Gold -= (cropObject.Cost * quantityToBuy)
+			// adds crop seed to inventory
+			// TODO: DO I NEED TO CHECK TO MAKE SURE SEED INVENTORY ENTRY EXISTS FIRST
+			p.SeedStorage[cropToBuy] += quantityToBuy
+			// return no error
+			return nil
+		}
 
-// TODO: buy(Fruit/Vegetable.cost, Player.gp): calculates min/max item quantity
-// that can be purchased with current gold,
-// transfers item(s) to player and gold from player if confirmed
-// returns to storefront() previous menu if cancelled
-func buy(cropName) Crop {
-	//grab cropName[Cost]
-}
-
-// function to add crop seeds and remove gold from the player file
-func buyPlayer() *Player {
-	//error checking: if quantity is not in range
-	//add seeds of specified quantity
-	//remove gold corresponding to seeds
-}
-
-// sell(Player.inventory(?)): allows for player to select how many items to sell
-func sell() *Player {
-	if length player.CropInventory == 0 { //empty inventory
-		fmt.Println("You don't currently have any crops to sell.")
-		return
 	} else {
-		var sellList = getUnlockedSell()
-
+		return fmt.Errorf("INVALID: Not enough gold to purchase %s %s crops.", strconv.Itoa(quantityToBuy), cropToBuy)
 	}
 }
 
-// function to remove fully grown crops and add gold to the player file
-func sellPlayer(quantity int) *Player {
-	//error checking: if quantity is not in range
-	//increase player gold
-	//remove corresponding fruits/vegetables from player inventory
-	//TODO: if points implemented, increase player points
+func (p *Player) sellItems(cropToSell string, quantityToSell int) error {
+	// Ok: Identifies if player cropInventory has key cropToSell
+	if quantityInInventory, ok := p.CropInventory[cropToSell]; ok {
+		// Checks if has enough quantity to sell
+		if quantityInInventory >= quantityToSell {
+			// Sells the crops
+
+			// Crop object we are selling
+			// getCropObject returns the cropObject or error
+			cropObject, notValidCrop := getCropObject(cropToSell)
+
+			// If no error
+			if notValidCrop == nil {
+				// gives gold to player
+				p.Gold += (cropObject.SellPrice * quantityToSell)
+				//updates points
+				p.Points += quantityToSell
+				// takes away crop
+				p.CropInventory[cropToSell] -= quantityToSell
+				// if crop quantity becomes 0 then remove it from the inventory
+				if p.CropInventory[cropToSell] == 0 {
+					delete(p.CropInventory, cropToSell)
+				}
+				// return no error
+				return nil
+			}
+
+		} else {
+			return fmt.Errorf("INVALID: Not enough crops to sell")
+		}
+	}
+	return fmt.Errorf("INVALID: You do not have crop: %s", cropToSell)
 }
+
+// TODO: storefront(getUnlocked's list): interacting with all unlocked items (could be just the getUnlocked() list)
+// allows for selecting an item by entering the number preceding it to buy()
+//func storefront(items) {
+//fmt.Println(items)
+//possible overarcing loop: while 'E' has not been typed
+//fmt.Println("To select item, type its number and press Enter.")
+//fmt.println("To leave the shop, type 'E'.")
+//player input
+//if player input is valid number:
+//buy(Fruit/V's cost, Player.gp)
+//if player input is 'E' (and not determined in overarcing loop):
+//leave()
+//after buying, players back at shop menu list until deciding to leave()
+//}
 
 //TODO leave(): exits shop menu ('E'?)
 //func leave() {
