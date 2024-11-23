@@ -19,9 +19,8 @@ import (
 )
 
 // TODO: IS THERE A WAY TO PASS PLAYER OBJECT INTO MAIN
-func main() {
-	var playerGold = stringGold() // gets player gold as a string
-	fmt.Println("Welcome to the shop! You currently have %s gold.", playerGold)
+func (p *Player) StoreFront() {
+	fmt.Printf("Welcome to the shop! You currently have %d gold.", p.Gold)
 	fmt.Println("To buy items, type \"buy\".")
 	fmt.Println("To sell items, type \"sell\".")
 	fmt.Println("To leave the shop, type \"E\".")
@@ -33,32 +32,32 @@ func main() {
 	}
 	// BUYING:
 	if strings.ToLower(shopChoice) == "buy" {
-		var cropList = getUnlocked()
+		var cropList = p.getUnlocked()
 		printUnlocked(cropList)
 		fmt.Println("To buy a listed item, type its name and press Enter.")
 		var buyChoice string // user input
 		fmt.Scanln(&buyChoice)
 		//TODO: IS THE BELOW LINE WRITTEN RIGHT
-		if buyChoice != nil {
-			fmt.Println("How many %s would you like to buy? You have %s gold.", buyChoice, playerGold)
-			var quantityToBuy string // user input
+		if buyChoice != "" {
+			fmt.Printf("How many %s would you like to buy? You have %d gold.", buyChoice, p.Gold)
+			var quantityToBuy int // user input
 			fmt.Scanln(&quantityToBuy)
-			buyItems(buyChoice, strconv.Itoa(quantityToBuy))
+			p.buyItems(buyChoice, quantityToBuy)
 		}
 	}
 	// SELLING:
 	if strings.ToLower(shopChoice) == "sell" {
-		var cropList = getUnlocked()
+		var cropList = p.getUnlocked()
 		printUnlocked(cropList)
 		fmt.Println("To sell a listed item, type its name and press Enter.")
 		var sellChoice string // user input
 		fmt.Scanln(&sellChoice)
 		//TODO: IS THE BELOW LINE WRITTEN RIGHT
-		if sellChoice != nil {
-			fmt.Println("How many %s would you like to sell?", sellChoice)
-			var quantityToSell string // user input
+		if sellChoice != "" {
+			fmt.Printf("How many %s would you like to sell?", sellChoice)
+			var quantityToSell int // user input
 			fmt.Scanln(&quantityToSell)
-			sellItems(sellChoice, quantityToSell)
+			p.sellItems(sellChoice, quantityToSell)
 		}
 	} else { // invalid input:
 		fmt.Println("Input not understood. Please type 'buy', 'sell', or 'E'.")
@@ -66,18 +65,21 @@ func main() {
 }
 
 // Returns player gold as a string
-func (p *Player) stringGold() int {
-	return strconv.Itoa(p.Gold)
-}
+// func (p *Player) stringGold() int {
+// 	return p.Gold
+// }
 
 func (p *Player) getUnlocked() []string {
 	var cropList []string
-	var index int = 0 // for adding entry to next cropList spot
 	for i := 0; i < len(CropKeys); i++ {
-		var curCrop = getCropObject(CropKeys[i])
+		curCrop, err := getCropObject(CropKeys[i])
+		if err != nil {
+			// print error message
+		}
 		if curCrop.UnlockPoints <= p.Points { // If player has enough points for crop
-			cropList[index] = curCrop.Name + " - " + curCrop.Cost + " - Sell for " + curCrop.SellPrice
-			index++
+			// Format and append the crop details to the list
+			cropDetails := curCrop.Name + " - " + strconv.Itoa(curCrop.Cost) + " - Sell for " + strconv.Itoa(curCrop.SellPrice)
+			cropList = append(cropList, cropDetails)
 		}
 	}
 	return cropList
@@ -110,6 +112,7 @@ func (p *Player) buyItems(cropToBuy string, quantityToBuy int) error {
 	} else {
 		return fmt.Errorf("INVALID: Not enough gold to purchase %s %s crops.", strconv.Itoa(quantityToBuy), cropToBuy)
 	}
+	return nil
 }
 
 func (p *Player) sellItems(cropToSell string, quantityToSell int) error {
