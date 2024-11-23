@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -101,51 +102,8 @@ func main() {
 		if choice == 4 {
 			// GO TO SHOP (PRINT SHOP MENU AND COMMANDS)
 
-			// Print shop menu
-
 			// keeps running until player exits shop
 			player.StoreFront()
-			// inShop := true
-			// for inShop {
-			// 	// Shop error message
-			// 	var shopErrorMessage error = nil
-
-			// 	// promts user for shop action
-			// 	var action int
-			// 	fmt.Print("Enter your choice (1- SELL, 2- EXIT): ")
-			// 	fmt.Scanln(&action)
-
-			// 	// If selling option chosen
-			// 	if action == 1 {
-			// 		var cropToSell string
-			// 		fmt.Print("What crop would you like to sell? ")
-			// 		fmt.Scanln(&cropToSell)
-
-			// 		var quantityToSell int
-			// 		fmt.Print("How many would you like to sell? ")
-			// 		fmt.Scanln(&quantityToSell)
-
-			// 		// Calls function to perform action
-			// 		err := player.sellItems(strings.ToLower(cropToSell), quantityToSell)
-			// 		// If error then change errorMessage to the returned error message
-			// 		if err != nil {
-			// 			shopErrorMessage = err
-			// 		}
-			// 	}
-			// 	// If exiting the shop
-			// 	if action == 2 {
-			// 		fmt.Println("Exiting the shop...")
-			// 		inShop = false
-			// 	}
-			// 	ClearConsole()
-			// 	SavePlayer(player)
-			// 	player.DisplayInfo()
-			// 	if shopErrorMessage != nil {
-			// 		fmt.Println()
-			// 		fmt.Println(shopErrorMessage)
-			// 		fmt.Println()
-			// 	}
-			// }
 		}
 
 		// END DAY
@@ -217,16 +175,27 @@ func AskWhatToPlant(player *Player) (string, error) {
 
 // WHERE TO PLANT?
 func (p *Player) AskWhereToPlant() (int, int, error) {
-	var row, col int
+	var rowStr, colStr string
 	fmt.Println("Enter the row and column (e.g., 0 1) where you want to plant the crop:")
-	fmt.Scanln(&row, &col)
+	fmt.Scanln(&rowStr, &colStr)
+
+	// convert strings to integers
+	rowInt, err := strconv.Atoi(rowStr)
+	if err != nil {
+		return 0, 0, fmt.Errorf("invalid row: %s is not a valid integer", rowStr)
+	}
+
+	colInt, err := strconv.Atoi(colStr)
+	if err != nil {
+		return 0, 0, fmt.Errorf("invalid column: %s is not a valid integer", colStr)
+	}
 
 	// Ensure the input is within bounds
-	if row < 0 || row >= p.Plot.Rows || col < 0 || col >= p.Plot.Cols {
+	if rowInt < 0 || rowInt >= p.Plot.Rows || colInt < 0 || colInt >= p.Plot.Cols {
 		return 0, 0, fmt.Errorf("invalid row or column, must be between 0 and %d", p.Plot.Rows-1)
 	}
 
-	return row, col, nil
+	return rowInt, colInt, nil
 }
 
 // FOR NEW PLAYER
