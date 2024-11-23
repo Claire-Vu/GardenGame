@@ -35,7 +35,7 @@ var crops = map[string]*Crop{
 }
 
 //A list of all crop keys for iteration
-var CropKeys []string = {["carrot","potato","garlic","corn","pumpkin","apple","orange","mango","peach","banana"]}
+var CropKeys = []string {["carrot","potato","garlic","corn","pumpkin","apple","orange","mango","peach","banana"]}
 
 // Function to get a crop by its name
 func getCropObject(cropName string) (*Crop, error) {
