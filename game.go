@@ -18,19 +18,27 @@ func main() {
 	fmt.Scanln(&playerType) // taking input from user
 	playerType = strings.ToLower(playerType)
 
+	// LOADS IN PLAYER
 	var player Player // variable of type Player to store player info
-
 	if playerType == "new" {
 		player = HandleNewPlayer()
+		ClearConsole()
+		fmt.Println("\n---Current Status---")
+		player.DisplayInfo()
 
 	} else if playerType == "continue" {
 		player = HandleExistingPlayer()
+		ClearConsole()
+		fmt.Printf("\nWelcome back, %s!\n", player.Username)
+		fmt.Println("\n---Current Status---")
+		player.DisplayInfo()
 
 	} else {
 		fmt.Println("Invalid input.")
 		return
 	}
 
+	// RUNS GAME
 	var gameRunning bool = true
 	for gameRunning {
 		// prints command options
@@ -53,7 +61,7 @@ func main() {
 		if choice == 1 {
 			// Ask the player what crop they want to plant
 			cropName, err := AskWhatToPlant(&player)
-			for err != nil {
+			for err != nil { // will keep asking until valid input
 				fmt.Println(err)
 				cropName, err = AskWhatToPlant(&player)
 			}
@@ -66,12 +74,13 @@ func main() {
 
 			// Plant the crop -- CROP OBJECT (YAY!)
 			crop, err := getCropObject(cropName)
-			if err != nil {
+			if err != nil { // If crop is not one of available crops
 				fmt.Println(err)
 				return
 			}
 
-			// if cannot plant because there is something already there
+			// Handles error where cannot plant because there is
+			// something already there and/or if the seed doesn't exist
 			errPlot := player.PlantCrop(row, col, crop)
 			if errPlot != nil {
 				errMessage = errPlot
@@ -88,10 +97,21 @@ func main() {
 		if choice == 3 {
 			var row, col int
 			fmt.Print("Enter the row: ")
-			fmt.Scan(&row)
+			_, errRow := fmt.Scan(&row)
+			for errRow != nil {
+				fmt.Println("INVALID: Please enter an Integer value.")
+				_, errRow = fmt.Scan(&row)
+			}
+
 			fmt.Print("Enter the col: ")
-			fmt.Scan(&col)
-			err := player.Plot.removeItem(row, col)
+			_, errCol := fmt.Scan(&col)
+			for errCol != nil {
+				fmt.Println("INVALID: Please enter an Integer value.")
+				_, errCol = fmt.Scan(&col)
+			}
+
+			// Attempts to removes the Item
+			err := player.Plot.removeItem(row, col) // returns error if no item at location
 			if err != nil {
 				errMessage = err
 			}
@@ -99,58 +119,18 @@ func main() {
 
 		// SHOP
 		if choice == 4 {
-			// GO TO SHOP (PRINT SHOP MENU AND COMMANDS)
-
-			// Print shop menu
-
 			// keeps running until player exits shop
-			player.StoreFront()
-			// inShop := true
-			// for inShop {
-			// 	// Shop error message
-			// 	var shopErrorMessage error = nil
-
-			// 	// promts user for shop action
-			// 	var action int
-			// 	fmt.Print("Enter your choice (1- SELL, 2- EXIT): ")
-			// 	fmt.Scanln(&action)
-
-			// 	// If selling option chosen
-			// 	if action == 1 {
-			// 		var cropToSell string
-			// 		fmt.Print("What crop would you like to sell? ")
-			// 		fmt.Scanln(&cropToSell)
-
-			// 		var quantityToSell int
-			// 		fmt.Print("How many would you like to sell? ")
-			// 		fmt.Scanln(&quantityToSell)
-
-			// 		// Calls function to perform action
-			// 		err := player.sellItems(strings.ToLower(cropToSell), quantityToSell)
-			// 		// If error then change errorMessage to the returned error message
-			// 		if err != nil {
-			// 			shopErrorMessage = err
-			// 		}
-			// 	}
-			// 	// If exiting the shop
-			// 	if action == 2 {
-			// 		fmt.Println("Exiting the shop...")
-			// 		inShop = false
-			// 	}
-			// 	ClearConsole()
-			// 	SavePlayer(player)
-			// 	player.DisplayInfo()
-			// 	if shopErrorMessage != nil {
-			// 		fmt.Println()
-			// 		fmt.Println(shopErrorMessage)
-			// 		fmt.Println()
-			// 	}
-			// }
+			inShop := player.StoreFront()
+			for inShop != "Exit" {
+				inShop = player.StoreFront()
+			}
 		}
 
 		// END DAY
 		if choice == 5 {
+			// All crops become a day older
 			player.Plot.updateCrops()
+			// day increaes by 1
 			player.Day += 1
 		}
 
@@ -160,19 +140,22 @@ func main() {
 			os.Exit(0)
 		}
 
+		// Automatically grows the player's plot when they reach the required points
 		player.updatePlot()
 		// Saves the player data after each action
 		SavePlayer(player)
 		ClearConsole()
 
+		// Displays error message from invalid actions
 		if errMessage != nil {
 			fmt.Println(errMessage)
 
-			// Waits 2 seconds before clearing console so can read error
+			// Waits 2 seconds before clearing console so user's can read error
 			fmt.Println("Loading game...")
 			time.Sleep(2 * time.Second)
 			ClearConsole()
 		}
+
 		fmt.Println("Game saved!")
 
 		// Display the updated player information
@@ -236,8 +219,6 @@ func HandleNewPlayer() Player {
 	fmt.Scanln(&name)
 	player := CreateNewPlayer(name, 5, 5) // START WITH 5X5
 	SavePlayer(player)
-	fmt.Println("\n---Current Status---")
-	player.DisplayInfo()
 	return player
 }
 
@@ -251,32 +232,7 @@ func HandleExistingPlayer() Player {
 		fmt.Println("Could not find player.")
 		os.Exit(1) // Exit with status code 1 (indicating an error)
 	}
-	fmt.Printf("\nWelcome back, %s!\n", player.Username)
-	fmt.Println("\n---Current Status---")
-	player.DisplayInfo()
 	return player
-}
-
-// GROW PLAYER'S PLOT
-func (p *Player) updatePlot() {
-	// If player reaches treshold for plot upgrade then auto grow plot
-	if p.Points == 200 && p.Plot.PlotLevel == 0 {
-		p.GrowPlotPlayer(2, 2)
-		p.Plot.PlotLevel++
-		fmt.Println("Your plot was automatically upgraded!")
-	}
-	// only upgrades the plot when player reaches the specified points
-	// and when plot hasn't been updated yet
-	if p.Points == 400 && p.Plot.PlotLevel == 1 {
-		p.GrowPlotPlayer(2, 2)
-		p.Plot.PlotLevel++
-		fmt.Println("Your plot was automatically upgraded!")
-	}
-	if p.Points == 600 && p.Plot.PlotLevel == 2 {
-		p.GrowPlotPlayer(2, 2)
-		p.Plot.PlotLevel++
-		fmt.Println("Your plot was automatically upgraded!")
-	}
 }
 
 // ClearConsole clears the terminal screen based on the operating system.
