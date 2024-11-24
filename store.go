@@ -19,8 +19,10 @@ import (
 )
 
 // TODO: IS THERE A WAY TO PASS PLAYER OBJECT INTO MAIN
-func (p *Player) StoreFront() {
-	fmt.Printf("Welcome to the shop! You currently have %d gold.", p.Gold)
+func (p *Player) StoreFront() string {
+	ClearConsole()
+	fmt.Printf("----------------------SHOP--------------------------------\n")
+	fmt.Printf("Welcome to the shop! You currently have %d gold.\n", p.Gold)
 	fmt.Println("To buy items, type \"buy\".")
 	fmt.Println("To sell items, type \"sell\".")
 	fmt.Println("To leave the shop, type \"E\".")
@@ -28,7 +30,7 @@ func (p *Player) StoreFront() {
 	fmt.Scanln(&shopChoice)
 	if strings.ToLower(shopChoice) == "e" {
 		fmt.Println("Goodbye! We hope you'll shop with us again soon :)")
-		//TODO: LEAVE SHOP, RETURN TO PLOT
+		return "Exit"
 	}
 	// BUYING:
 	if strings.ToLower(shopChoice) == "buy" {
@@ -62,6 +64,7 @@ func (p *Player) StoreFront() {
 	} else { // invalid input:
 		fmt.Println("Input not understood. Please type 'buy', 'sell', or 'E'.")
 	}
+	return "notExit"
 }
 
 // Returns player gold as a string
