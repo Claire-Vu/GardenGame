@@ -55,17 +55,29 @@ func main() {
 
 		// Validate the input
 		if choice < 1 || choice > 6 {
-			errMessage = fmt.Errorf("Invalid command. Please choose a valid option between 1 and 6.")
+			errMessage = fmt.Errorf("invalid command, please choose a valid option between 1 and 6")
 		}
 
 		// PlANT COMMAND
 		if choice == 1 {
 			// Ask the player what crop they want to plant
 			cropName, err := AskWhatToPlant(&player)
-			for err != nil { // will keep asking until valid input
+			for err != nil {
+				if err.Error() == "no crops are available to plant. Please restock your seeds" {
+					fmt.Println(strings.ToUpper(err.Error()))
+					// Return to menu 
+					break
+				}
+				// If there's any other error, print it and ask again
 				fmt.Println(err)
 				cropName, err = AskWhatToPlant(&player)
 			}
+
+			// Player has NO CROPS available, BACK TO THE MENU!!!
+			if err != nil && err.Error() == "no crops are available to plant. Please restock your seeds" {
+				continue 
+			}
+
 			// Ask where to plant the crop
 			row, col, err := player.AskWhereToPlant()
 			for err != nil {
@@ -178,11 +190,31 @@ func (p *Player) printMenu() {
 	fmt.Println("(1 - PLANT) (2 - HARVEST) (3 - REMOVE) (4 - SHOP) (5 - END DAY) (6 - EXIT)")
 }
 
-// WHAT TO PLANT? - This will be Elaine's part about the store.
+// WHAT TO PLANT?
 func AskWhatToPlant(player *Player) (string, error) {
 	var cropName string
-	fmt.Println("What crop would you like to plant?")
-	fmt.Println("Available crops: carrot, potato, corn, pumpkin, garlic")
+	var allSeedCount int
+
+	// Check if there are available crops
+	for _, count := range player.SeedStorage {
+		if count > 0 {
+			allSeedCount++
+		}
+	}
+
+	// If there are available crops, display them
+	if allSeedCount > 0 {
+		fmt.Println("Available crops to plant:")
+		for crop, count := range player.SeedStorage {
+			if count > 0 {
+				fmt.Printf("  %s: %d seed(s)\n", crop, count)
+			}
+		}
+	} else {
+		// If no crops are available, return the error
+		return "", fmt.Errorf("no crops are available to plant. Please restock your seeds")
+	}
+	
 	fmt.Println("Or type 'exit' to quit the game.")
 	fmt.Scanln(&cropName)
 
@@ -191,9 +223,14 @@ func AskWhatToPlant(player *Player) (string, error) {
 		fmt.Println("Exiting the game...")
 		os.Exit(0)
 	}
+
 	cropName = strings.ToLower(cropName)
-	if player.SeedStorage[cropName] <= 0 {
-		return "", fmt.Errorf("You don't have any %s seeds left.", cropName)
+
+	// Verify the crop exists and player has seeds
+	if count, exists := player.SeedStorage[cropName]; !exists {
+		return "", fmt.Errorf("invalid crop name: %s", cropName)
+	} else if count <= 0 {
+		return "", fmt.Errorf("you don't have any %s seeds left", cropName)
 	}
 
 	return cropName, nil
