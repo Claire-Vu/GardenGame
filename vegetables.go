@@ -22,10 +22,10 @@ type Crop struct {
 
 // Map to hold crops by their name
 var crops = map[string]*Crop{
-	"carrot":  {"Vegetable", "carrot", 20, 4, 0, "🥕", 10, false, 0, false},
-	"potato":  {"Vegetable", "potato", 40, 6, 0, "🥔", 20, false, 0, false},
-	"garlic":  {"Vegetable", "garlic", 60, 8, 0, "🧄", 40, false, 0, false},
-	"corn":    {"Vegetable", "corn", 100, 8, 0, "🌽", 30, false, 0, false},
+	"carrot":  {"Vegetable", "carrot", 10, 4, 0, "🥕", 20, false, 0, false},
+	"potato":  {"Vegetable", "potato", 20, 6, 0, "🥔", 40, false, 0, false},
+	"garlic":  {"Vegetable", "garlic", 40, 8, 0, "🧄", 60, false, 0, false},
+	"corn":    {"Vegetable", "corn", 75, 8, 0, "🌽", 110, false, 0, false},
 	"pumpkin": {"Vegetable", "pumpkin", 100, 14, 0, "🎃", 160, false, 0, false},
 	"apple":   {"Fruit", "apple", 70, 6, 0, "🍎", 10, false, 200, false},
 	"orange":  {"Fruit", "orange", 70, 6, 0, "🍊", 10, false, 200, false},

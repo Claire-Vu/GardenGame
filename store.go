@@ -34,17 +34,16 @@ func (p *Player) StoreFront() string {
 		return "Exit"
 	}
 
-	// BUYING:
-	if strings.ToLower(shopChoice) == "buy" {
+	if strings.ToLower(shopChoice) == "buy" { // BUYING:
 		var cropList = p.getUnlocked()
 		printLists(cropList) // prints shop stock
 		fmt.Println("To buy a listed item, type its name and press Enter.")
 		var buyChoice string // user input
 		fmt.Scanln(&buyChoice)
 		if buyChoice != "" {
-			fmt.Printf("How many %s would you like to buy? (%d gold held)", buyChoice, p.Gold)
-			var quantityToBuy int // user input
-			_, err := fmt.Scanln(&quantityToBuy)
+			fmt.Printf("How many %s(s) would you like to buy? (%d gold held)", buyChoice, p.Gold)
+			var quantityToBuy int                // user input
+			_, err := fmt.Scanln(&quantityToBuy) // checking for invalid input
 			for err != nil {
 				fmt.Println("INVALID: Please enter an Integer value.")
 				_, err = fmt.Scan(&quantityToBuy)
@@ -53,13 +52,10 @@ func (p *Player) StoreFront() string {
 			if errBuy != nil {
 				fmt.Println(strings.ToUpper(errBuy.Error()))
 			} else {
-				fmt.Println("success message")
+				fmt.Printf("Successfully purchased %d %s(s)!", quantityToBuy, buyChoice)
 			}
 		}
-	}
-
-	// SELLING:
-	if strings.ToLower(shopChoice) == "sell" {
+	} else if strings.ToLower(shopChoice) == "sell" { // SELLING:
 		fmt.Println("To sell a listed item, type its name and press Enter.")
 		var inventory = p.getInventory()
 		printLists(inventory) // prints player-held crops & quantities
@@ -67,8 +63,12 @@ func (p *Player) StoreFront() string {
 		fmt.Scanln(&sellChoice)
 		if (sellChoice != "") && (p.CropInventory[sellChoice] > 0) { // added check to make sure item in inventory
 			fmt.Printf("How many %s would you like to sell? (You have %d)", sellChoice, p.CropInventory[sellChoice])
-			var quantityToSell int // user input
-			fmt.Scanln(&quantityToSell)
+			var quantityToSell int                // user input
+			_, err := fmt.Scanln(&quantityToSell) // checking for invalid input
+			for err != nil {
+				fmt.Println("INVALID: Please enter an Integer value.")
+				_, err = fmt.Scan(&quantityToSell)
+			}
 			p.sellItems(sellChoice, quantityToSell)
 		}
 	} else { // invalid input:
@@ -131,18 +131,17 @@ func printLists(curList []string) {
 // Handles cropObjects being bought by the player
 // Error checks, adds seeds to storage, removes gold from player
 func (p *Player) buyItems(cropToBuy string, quantityToBuy int) error {
-	// TODO: ADD ERROR CHECK
 	cropObject, notValidCrop := getCropObject(cropToBuy)
-	if notValidCrop == nil {
+	if notValidCrop == nil { // if no error
 		if p.Gold >= (cropObject.Cost * quantityToBuy) {
 			// removes gold from player, adds purchased seeds
 			p.Gold -= (cropObject.Cost * quantityToBuy)
 			p.SeedStorage[cropToBuy] += quantityToBuy
 			return nil // return no error
 		} else {
-			return fmt.Errorf("invalid: not enough gold to purchase %s %s crops", strconv.Itoa(quantityToBuy), cropToBuy)
+			return fmt.Errorf("invalid: not enough gold to purchase %d %s crops", quantityToBuy, cropToBuy)
 		}
-	} else {
+	} else { // if getCropObject() returned an error
 		return fmt.Errorf("invalid: not a valid crop")
 	}
 }
@@ -167,11 +166,13 @@ func (p *Player) sellItems(cropToSell string, quantityToSell int) error {
 				if p.CropInventory[cropToSell] == 0 {
 					delete(p.CropInventory, cropToSell)
 				}
+				fmt.Printf("Successfully sold %d %s(s) for %d gold!", quantityToSell, cropObject.Name, (cropObject.SellPrice * quantityToSell))
 				// return no error
 				return nil
 			}
 
 		} else {
+			fmt.Println("invalid: not enough crops to sell")
 			return fmt.Errorf("invalid: not enough crops to sell")
 		}
 	}
