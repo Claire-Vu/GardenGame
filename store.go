@@ -28,13 +28,10 @@ func (p *Player) StoreFront() string {
 	var shopChoice string // user input
 	fmt.Scanln(&shopChoice)
 
-	// LEAVING SHOP:
-	if strings.ToLower(shopChoice) == "e" {
+	if strings.ToLower(shopChoice) == "e" { // LEAVING SHOP:
 		fmt.Println("Goodbye! We hope you'll shop with us again soon :)")
 		return "Exit"
-	}
-
-	if strings.ToLower(shopChoice) == "buy" { // BUYING:
+	} else if strings.ToLower(shopChoice) == "buy" { // BUYING:
 		var cropList = p.getUnlocked()
 		printLists(cropList) // prints shop stock
 		fmt.Println("To buy a listed item, type its name and press Enter.")
@@ -70,6 +67,8 @@ func (p *Player) StoreFront() string {
 				_, err = fmt.Scan(&quantityToSell)
 			}
 			p.sellItems(sellChoice, quantityToSell)
+		} else if sellChoice != "" {
+			fmt.Printf("Input \"%s\" not understood. Returning to shop menu", sellChoice)
 		}
 	} else { // invalid input:
 		fmt.Println("Input not understood. Please type 'buy', 'sell', or 'E'.")
