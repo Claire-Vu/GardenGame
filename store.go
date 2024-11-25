@@ -5,8 +5,9 @@
 //functions:
 //main(): runs code
 //stringGold(): returns current player object's gold as a string
-//getUnlocked(): returns list of strings with all unlocked crops, along with their buy and sell prices
-//printUnlocked(): prints getUnlocked() list one by one
+//getUnlocked(): returns list of strings with all unlocked crops, along with their buy prices
+//getInventory(): returns a list of strings with all crops present in player inventory, along with their sell prices
+//printUnlocked(): prints getUnlocked() or getInventory() lists one by one
 //buyItems(): manages player inventory adding seeds, player gold decrease
 //sellItems(): manages player inventory removing fully grown crops, player gold and points++
 
@@ -39,7 +40,6 @@ func (p *Player) StoreFront() string {
 		fmt.Println("To buy a listed item, type its name and press Enter.")
 		var buyChoice string // user input
 		fmt.Scanln(&buyChoice)
-		//TODO: IS THE BELOW LINE WRITTEN RIGHT
 		if buyChoice != "" {
 			fmt.Printf("How many %s would you like to buy? You have %d gold.", buyChoice, p.Gold)
 			var quantityToBuy int // user input
@@ -49,14 +49,15 @@ func (p *Player) StoreFront() string {
 	}
 	// SELLING:
 	if strings.ToLower(shopChoice) == "sell" {
-		var cropList = p.getUnlocked()
-		printUnlocked(cropList)
+		//var cropList = p.getUnlocked()
+		//printUnlocked(cropList)
+		var inventory = p.getInventory()
+		printUnlocked(inventory)
 		fmt.Println("To sell a listed item, type its name and press Enter.")
 		var sellChoice string // user input
 		fmt.Scanln(&sellChoice)
-		//TODO: IS THE BELOW LINE WRITTEN RIGHT
 		if sellChoice != "" {
-			fmt.Printf("How many %s would you like to sell?", sellChoice)
+			fmt.Printf("How many %s would you like to sell? (%d total)", sellChoice, p.CropInventory[sellChoice])
 			var quantityToSell int // user input
 			fmt.Scanln(&quantityToSell)
 			p.sellItems(sellChoice, quantityToSell)
@@ -67,11 +68,7 @@ func (p *Player) StoreFront() string {
 	return "notExit"
 }
 
-// Returns player gold as a string
-// func (p *Player) stringGold() int {
-// 	return p.Gold
-// }
-
+// creates a list of strings -- all unlocked crops and their prices
 func (p *Player) getUnlocked() []string {
 	var cropList []string
 	for i := 0; i < len(CropKeys); i++ {
@@ -81,14 +78,37 @@ func (p *Player) getUnlocked() []string {
 		}
 		if curCrop.UnlockPoints <= p.Points { // If player has enough points for crop
 			// Format and append the crop details to the list
-			cropDetails := curCrop.Name + " - " + strconv.Itoa(curCrop.Cost) + " - Sell for " + strconv.Itoa(curCrop.SellPrice)
+			cropDetails := curCrop.Name + " - Buy for " + strconv.Itoa(curCrop.Cost) + " gold"
 			cropList = append(cropList, cropDetails)
 		}
 	}
 	return cropList
 }
 
-// prints the getUnlocked() list line by line
+// Creates a list of strings: all crops player is holding and sell prices
+func (p *Player) getInventory() []string {
+	var index int
+	index = 1
+	var strLi []string
+	strLi = append(strLi, "You have... ")
+	for i := 0; i < len(CropKeys); i++ {
+		if p.CropInventory[CropKeys[i]] > 0 { //if anything in crop inventory slot
+			curCrop, err := getCropObject(CropKeys[i])
+			if err != nil {
+				// print error message
+			}
+			sellDetails := strconv.Itoa(p.CropInventory[CropKeys[i]]) + " " + CropKeys[i] + " - sell for " + strconv.Itoa(curCrop.SellPrice) + "gold each"
+			strLi = append(strLi, sellDetails)
+			index++
+		}
+	}
+	if len(strLi) == 1 { //if nothing in player inventory
+		strLi = append(strLi, "No crops in inventory. Plant and harvest them from the field!")
+	}
+	return strLi
+}
+
+// prints the getUnlocked() or getInventory() lists line by line
 func printUnlocked(unlockedList []string) {
 	for i := 0; i < len(unlockedList); i++ {
 		fmt.Println(unlockedList[i])
@@ -151,24 +171,3 @@ func (p *Player) sellItems(cropToSell string, quantityToSell int) error {
 	}
 	return fmt.Errorf("INVALID: You do not have crop: %s", cropToSell)
 }
-
-// TODO: storefront(getUnlocked's list): interacting with all unlocked items (could be just the getUnlocked() list)
-// allows for selecting an item by entering the number preceding it to buy()
-//func storefront(items) {
-//fmt.Println(items)
-//possible overarcing loop: while 'E' has not been typed
-//fmt.Println("To select item, type its number and press Enter.")
-//fmt.println("To leave the shop, type 'E'.")
-//player input
-//if player input is valid number:
-//buy(Fruit/V's cost, Player.gp)
-//if player input is 'E' (and not determined in overarcing loop):
-//leave()
-//after buying, players back at shop menu list until deciding to leave()
-//}
-
-//TODO leave(): exits shop menu ('E'?)
-//func leave() {
-//fmt.Println("Thank you for shopping with us!")
-//return to field code
-//}
