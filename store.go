@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Main store loop:
@@ -43,8 +44,17 @@ func (p *Player) StoreFront() string {
 		if buyChoice != "" {
 			fmt.Printf("How many %s would you like to buy? (%d gold held)", buyChoice, p.Gold)
 			var quantityToBuy int // user input
-			fmt.Scanln(&quantityToBuy)
-			p.buyItems(buyChoice, quantityToBuy)
+			_, err := fmt.Scanln(&quantityToBuy)
+			for err != nil {
+				fmt.Println("INVALID: Please enter an Integer value.")
+				_, err = fmt.Scan(&quantityToBuy)
+			}
+			errBuy := p.buyItems(buyChoice, quantityToBuy)
+			if errBuy != nil {
+				fmt.Println(strings.ToUpper(errBuy.Error()))
+			} else {
+				fmt.Println("success message")
+			}
 		}
 	}
 
@@ -64,6 +74,8 @@ func (p *Player) StoreFront() string {
 	} else { // invalid input:
 		fmt.Println("Input not understood. Please type 'buy', 'sell', or 'E'.")
 	}
+	// Leave 2 second delay for user to look at err/success messages
+	time.Sleep(2 * time.Second)
 	return "notExit"
 }
 
@@ -121,17 +133,18 @@ func printLists(curList []string) {
 func (p *Player) buyItems(cropToBuy string, quantityToBuy int) error {
 	// TODO: ADD ERROR CHECK
 	cropObject, notValidCrop := getCropObject(cropToBuy)
-	if p.Gold >= (cropObject.Cost * quantityToBuy) {
-		if notValidCrop == nil { // If no error
+	if notValidCrop == nil {
+		if p.Gold >= (cropObject.Cost * quantityToBuy) {
 			// removes gold from player, adds purchased seeds
 			p.Gold -= (cropObject.Cost * quantityToBuy)
 			p.SeedStorage[cropToBuy] += quantityToBuy
 			return nil // return no error
+		} else {
+			return fmt.Errorf("invalid: not enough gold to purchase %s %s crops", strconv.Itoa(quantityToBuy), cropToBuy)
 		}
 	} else {
-		return fmt.Errorf("INVALID: Not enough gold to purchase %s %s crops.", strconv.Itoa(quantityToBuy), cropToBuy)
+		return fmt.Errorf("invalid: not a valid crop")
 	}
-	return nil
 }
 
 // Handles fully grown crops being sold by player
@@ -159,8 +172,8 @@ func (p *Player) sellItems(cropToSell string, quantityToSell int) error {
 			}
 
 		} else {
-			return fmt.Errorf("INVALID: Not enough crops to sell")
+			return fmt.Errorf("invalid: not enough crops to sell")
 		}
 	}
-	return fmt.Errorf("INVALID: You do not have crop: %s", cropToSell)
+	return fmt.Errorf("invalid: you do not have crop: %s", cropToSell)
 }

@@ -65,7 +65,7 @@ func main() {
 			for err != nil {
 				if err.Error() == "no crops are available to plant. Please restock your seeds" {
 					fmt.Println(strings.ToUpper(err.Error()))
-					// Return to menu 
+					// Return to menu
 					break
 				}
 				// If there's any other error, print it and ask again
@@ -75,7 +75,7 @@ func main() {
 
 			// Player has NO CROPS available, BACK TO THE MENU!!!
 			if err != nil && err.Error() == "no crops are available to plant. Please restock your seeds" {
-				continue 
+				continue
 			}
 
 			// Ask where to plant the crop
@@ -161,7 +161,7 @@ func main() {
 
 		// Displays error message from invalid actions
 		if errMessage != nil {
-			fmt.Println(errMessage)
+			fmt.Println(strings.ToUpper(errMessage.Error()))
 
 			// Waits 2 seconds before clearing console so user's can read error
 			fmt.Println("Loading game...")
@@ -214,7 +214,7 @@ func AskWhatToPlant(player *Player) (string, error) {
 		// If no crops are available, return the error
 		return "", fmt.Errorf("no crops are available to plant. Please restock your seeds")
 	}
-	
+
 	fmt.Println("Or type 'exit' to quit the game.")
 	fmt.Scanln(&cropName)
 

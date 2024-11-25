@@ -101,10 +101,10 @@ func (g *Plot) Plant(row, col int, crop *Crop) error {
 			g.Plot[row][col] = crop
 			return nil
 		} else {
-			return fmt.Errorf("Cannot plant at that location: There is already a crop at that location!")
+			return fmt.Errorf("there is already a crop at that location")
 		}
 	} else {
-		return fmt.Errorf("Cannot plant: the row/col is outside the Plot")
+		return fmt.Errorf("cannot plant: the row/col is outside the plot")
 	}
 }
 
@@ -152,10 +152,10 @@ func (g *Plot) removeItem(row, col int) error {
 			g.Plot[row][col] = nil
 			return nil
 		} else {
-			return fmt.Errorf("There is no crop to remove.")
+			return fmt.Errorf("there is no crop to remove")
 		}
 	} else {
-		return fmt.Errorf("Cannot remove: the row/col is outside the Plot")
+		return fmt.Errorf("cannot remove: the row/col is outside the plot")
 	}
 }
 

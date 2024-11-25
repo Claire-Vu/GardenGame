@@ -60,16 +60,3 @@ func getCropObject(name string) (*Crop, error) {
 
 	return &newCrop, nil
 }
-
-// Function to get a crop by its name
-
-// func getCropObject(cropName string) (*Crop, error) {
-// 	crop, exists := crops[cropName]
-// 	if !exists {
-// 		return nil, fmt.Errorf("crop '%s' not found", cropName)
-// 	}
-
-// 	return crop, nil
-// }
-
-// potential difference: fruits continuing after 1 harvest
