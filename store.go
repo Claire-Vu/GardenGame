@@ -19,14 +19,15 @@ import (
 
 // Main store loop:
 func (p *Player) StoreFront() string {
-	ClearConsole()
+	ClearConsole() // clears terminal before main shop menu
 	fmt.Printf("----------------------SHOP--------------------------------\n")
 	fmt.Printf("Welcome to the shop! You currently have %d gold.\n", p.Gold)
 	fmt.Println("To buy items, type \"buy\".")
 	fmt.Println("To sell items, type \"sell\".")
 	fmt.Println("To leave the shop, type \"E\".")
-	var shopChoice string // user input
-	fmt.Scanln(&shopChoice)
+
+	var shopChoice string
+	fmt.Scanln(&shopChoice) // user input
 
 	if strings.ToLower(shopChoice) == "e" { // LEAVING SHOP:
 		fmt.Println("Goodbye! We hope you'll shop with us again soon :)")
@@ -40,7 +41,7 @@ func (p *Player) StoreFront() string {
 		if buyChoice != "" {
 			fmt.Printf("How many %s(s) would you like to buy? (%d gold held)", buyChoice, p.Gold)
 			var quantityToBuy int                // user input
-			_, err := fmt.Scanln(&quantityToBuy) // checking for invalid input
+			_, err := fmt.Scanln(&quantityToBuy) // checking for non-number input
 			for err != nil {
 				fmt.Println("INVALID: Please enter an Integer value.")
 				_, err = fmt.Scan(&quantityToBuy)
@@ -56,12 +57,12 @@ func (p *Player) StoreFront() string {
 		fmt.Println("To sell a listed item, type its name and press Enter.")
 		var inventory = p.getInventory()
 		printLists(inventory) // prints player-held crops & quantities
-		var sellChoice string // user input
-		fmt.Scanln(&sellChoice)
+		var sellChoice string
+		fmt.Scanln(&sellChoice)                                      // user input
 		if (sellChoice != "") && (p.CropInventory[sellChoice] > 0) { // added check to make sure item in inventory
 			fmt.Printf("How many %s would you like to sell? (You have %d)", sellChoice, p.CropInventory[sellChoice])
-			var quantityToSell int                // user input
-			_, err := fmt.Scanln(&quantityToSell) // checking for invalid input
+			var quantityToSell int
+			_, err := fmt.Scanln(&quantityToSell) // checking for invalid user input
 			for err != nil {
 				fmt.Println("INVALID: Please enter an Integer value.")
 				_, err = fmt.Scan(&quantityToSell)
@@ -70,15 +71,16 @@ func (p *Player) StoreFront() string {
 		} else if sellChoice != "" {
 			fmt.Printf("Input \"%s\" not understood. Returning to shop menu", sellChoice)
 		}
-	} else { // invalid input:
+	} else { // INVALID INPUT:
 		fmt.Println("Input not understood. Please type 'buy', 'sell', or 'E'.")
 	}
-	// Leave 2 second delay for user to look at err/success messages
+	// Leaves 2 second delay for user to look at err/success messages
 	time.Sleep(2 * time.Second)
 	return "notExit"
 }
 
 // For buying. Generates a list of the products the shop is carrying.
+// This list only includes crops the player has enough points to unlock.
 // Returns all unlocked crops and their seed prices as a list of strings.
 func (p *Player) getUnlocked() []string {
 	var cropList []string
@@ -97,6 +99,7 @@ func (p *Player) getUnlocked() []string {
 }
 
 // For selling. Display's player's current sellable crops.
+// This list only includes crops the player currently has in CropInventory.
 // Returns all crops player is holding and sell prices as a list of strings.
 func (p *Player) getInventory() []string {
 	index := 1 // index of strLi after first entry
@@ -131,15 +134,17 @@ func printLists(curList []string) {
 // Error checks, adds seeds to storage, removes gold from player
 func (p *Player) buyItems(cropToBuy string, quantityToBuy int) error {
 	cropObject, notValidCrop := getCropObject(cropToBuy)
-	if notValidCrop == nil { // if no error
+
+	if notValidCrop == nil { // if no error (cropObject found)
 		if p.Gold >= (cropObject.Cost * quantityToBuy) {
 			// removes gold from player, adds purchased seeds
 			p.Gold -= (cropObject.Cost * quantityToBuy)
 			p.SeedStorage[cropToBuy] += quantityToBuy
 			return nil // return no error
-		} else {
+		} else { // no error, player gold < total cost
 			return fmt.Errorf("invalid: not enough gold to purchase %d %s crops", quantityToBuy, cropToBuy)
 		}
+
 	} else { // if getCropObject() returned an error
 		return fmt.Errorf("invalid: not a valid crop")
 	}
@@ -152,11 +157,10 @@ func (p *Player) sellItems(cropToSell string, quantityToSell int) error {
 	if quantityInInventory, ok := p.CropInventory[cropToSell]; ok {
 		// Checks if has enough quantity to sell
 		if quantityInInventory >= quantityToSell {
-
 			// getCropObject returns the cropObject or error
 			cropObject, notValidCrop := getCropObject(cropToSell)
 
-			if notValidCrop == nil { // If no error
+			if notValidCrop == nil { // If no error, enough to sell
 				//adds gold and points, removes crops
 				p.Gold += (cropObject.SellPrice * quantityToSell)
 				p.Points += quantityToSell
