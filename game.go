@@ -45,13 +45,22 @@ func main() {
 		// prints command options
 		player.printMenu()
 
-		// Ask what user wants to do
-		var choice int
-		fmt.Print("Enter your choice (1-6): ")
-		fmt.Scanln(&choice)
-
 		// Error Message
 		var errMessage error = nil
+
+		// Ask what user wants to do
+		var choiceStr string
+		fmt.Print("Enter your choice (1-6): ")
+		fmt.Scanln(&choiceStr)
+
+		// If user doesn't enter an int
+		choice, errChoice := strconv.Atoi(choiceStr)
+		for errChoice != nil {
+			fmt.Println("Invalid command, please enter an integer.")
+			fmt.Print("Enter your choice (1-6): ")
+			fmt.Scanln(&choiceStr)
+			choice, errChoice = strconv.Atoi(choiceStr)
+		}
 
 		// Validate the input
 		if choice < 1 || choice > 6 {
@@ -108,25 +117,34 @@ func main() {
 
 		// REMOVE COMMAND
 		if choice == 3 {
-			var row, col int
+			var rowStr, colStr string
+
+			// convert strings to integers
 			fmt.Print("Enter the row: ")
-			_, errRow := fmt.Scan(&row)
+			fmt.Scanln(&rowStr)
+			rowInt, errRow := strconv.Atoi(rowStr)
 			for errRow != nil {
-				fmt.Println("INVALID: Please enter an Integer value.")
-				_, errRow = fmt.Scan(&row)
+				fmt.Println("Invalid Integer value, please enter an integer.")
+				fmt.Print("Enter the row: ")
+				fmt.Scanln(&rowStr)
+				rowInt, errRow = strconv.Atoi(rowStr)
 			}
 
+			// convert strings to integers
 			fmt.Print("Enter the col: ")
-			_, errCol := fmt.Scan(&col)
-			for errCol != nil {
-				fmt.Println("INVALID: Please enter an Integer value.")
-				_, errCol = fmt.Scan(&col)
+			fmt.Scanln(&colStr)
+			colInt, errRow := strconv.Atoi(colStr)
+			for errRow != nil {
+				fmt.Println("Invalid Integer value, please enter an integer.")
+				fmt.Print("Enter the col: ")
+				fmt.Scanln(&colStr)
+				rowInt, errRow = strconv.Atoi(colStr)
 			}
 
 			// Attempts to removes the Item
-			err := player.Plot.removeItem(row, col) // returns error if no item at location
-			if err != nil {
-				errMessage = err
+			errPlot := player.Plot.removeItem(rowInt, colInt) // returns error if no item at location
+			if errPlot != nil {
+				errMessage = errPlot
 			}
 		}
 
