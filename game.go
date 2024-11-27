@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
@@ -48,18 +49,21 @@ func main() {
 		// Error Message
 		var errMessage error = nil
 
-		// Ask what user wants to do
-		var choiceStr string
-		fmt.Print("Enter your choice (1-6): ")
-		fmt.Scanln(&choiceStr)
+		// Scanner to prompt for input
+		scanner := bufio.NewScanner(os.Stdin)
 
-		// If user doesn't enter an int
-		choice, errChoice := strconv.Atoi(choiceStr)
-		for errChoice != nil {
-			fmt.Println("Invalid command, please enter an integer.")
-			fmt.Print("Enter your choice (1-6): ")
-			fmt.Scanln(&choiceStr)
-			choice, errChoice = strconv.Atoi(choiceStr)
+		// Prompt the user for action
+		var choiceStr string
+		var choice int
+		fmt.Print("Enter your choice (1-6): ")
+		if scanner.Scan() {
+			choiceStr = scanner.Text()
+			inputVal, errChoice := strconv.Atoi(choiceStr)
+			if errChoice != nil {
+				choice = 0
+			} else {
+				choice = inputVal
+			}
 		}
 
 		// Validate the input
@@ -118,34 +122,46 @@ func main() {
 		// REMOVE COMMAND
 		if choice == 3 {
 			var rowStr, colStr string
+			var rowInt, colInt int
 
-			// convert strings to integers
+			// Validates row input is an integer
 			fmt.Print("Enter the row: ")
-			fmt.Scanln(&rowStr)
-			rowInt, errRow := strconv.Atoi(rowStr)
-			for errRow != nil {
-				fmt.Println("Invalid Integer value, please enter an integer.")
-				fmt.Print("Enter the row: ")
-				fmt.Scanln(&rowStr)
-				rowInt, errRow = strconv.Atoi(rowStr)
+			if scanner.Scan() {
+				rowStr = scanner.Text()
+				// If the input cannot be converted to a string then set rowInt
+				// to -1 (invalid input)
+				inputVal, errStr := strconv.Atoi(rowStr)
+				if errStr != nil {
+					rowInt = -1
+				} else {
+					rowInt = inputVal
+				}
 			}
 
-			// convert strings to integers
+			// Validates col input is an integer
 			fmt.Print("Enter the col: ")
-			fmt.Scanln(&colStr)
-			colInt, errRow := strconv.Atoi(colStr)
-			for errRow != nil {
-				fmt.Println("Invalid Integer value, please enter an integer.")
-				fmt.Print("Enter the col: ")
-				fmt.Scanln(&colStr)
-				rowInt, errRow = strconv.Atoi(colStr)
+			if scanner.Scan() {
+				colStr = scanner.Text()
+				// If the input cannot be converted to a string then set colInt
+				// to -1 (invalid input)
+				inputVal, errStr := strconv.Atoi(colStr)
+				if errStr != nil {
+					colInt = -1
+				} else {
+					colInt = inputVal
+				}
+			}
+			// If  a valid input for row or col then attempts to removeItem, else return errMessage
+			if rowInt != -1 && colInt != -1 {
+				// Attempts to removes the Item
+				errPlot := player.Plot.removeItem(rowInt, colInt) // returns error if no item at location
+				if errPlot != nil {
+					errMessage = errPlot
+				}
+			} else {
+				errMessage = fmt.Errorf("invalid input for row or col")
 			}
 
-			// Attempts to removes the Item
-			errPlot := player.Plot.removeItem(rowInt, colInt) // returns error if no item at location
-			if errPlot != nil {
-				errMessage = errPlot
-			}
 		}
 
 		// SHOP
@@ -256,19 +272,27 @@ func AskWhatToPlant(player *Player) (string, error) {
 
 // WHERE TO PLANT?
 func (p *Player) AskWhereToPlant() (int, int, error) {
-	var rowStr, colStr string
+	// Need a new scanner - this take the whole string
+	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Println("Enter the row and column (e.g., 0 1) where you want to plant the crop:")
-	fmt.Scanln(&rowStr, &colStr)
+	scanner.Scan()
+	input := scanner.Text()
+	values := strings.Fields(input) // need to split this into row and col
 
-	// convert strings to integers
-	rowInt, err := strconv.Atoi(rowStr)
-	if err != nil {
-		return 0, 0, fmt.Errorf("invalid row: %s is not a valid integer", rowStr)
+	// Input should have exactly two values
+	if len(values) != 2 {
+		return 0, 0, fmt.Errorf("invalid input format, please enter row and column (e.g., 0 1)")
 	}
 
-	colInt, err := strconv.Atoi(colStr)
+	// Convert strings to integers
+	rowInt, err := strconv.Atoi(values[0])
 	if err != nil {
-		return 0, 0, fmt.Errorf("invalid column: %s is not a valid integer", colStr)
+		return 0, 0, fmt.Errorf("invalid row: %s is not a valid integer", values[0])
+	}
+
+	colInt, err := strconv.Atoi(values[1])
+	if err != nil {
+		return 0, 0, fmt.Errorf("invalid column: %s is not a valid integer", values[1])
 	}
 
 	// Ensure the input is within bounds
