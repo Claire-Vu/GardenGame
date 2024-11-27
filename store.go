@@ -11,7 +11,9 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -19,55 +21,106 @@ import (
 
 // Main store loop:
 func (p *Player) StoreFront() string {
-	ClearConsole() // clears terminal before main shop menu
+	ClearConsole()
 	fmt.Printf("----------------------SHOP--------------------------------\n")
 	fmt.Printf("Welcome to the shop! You currently have %d gold.\n", p.Gold)
 	fmt.Println("To buy items, type \"buy\".")
 	fmt.Println("To sell items, type \"sell\".")
 	fmt.Println("To leave the shop, type \"E\".")
 
-	var shopChoice string
-	fmt.Scanln(&shopChoice) // user input
+	// Scanner to prompt for input
+	scanner := bufio.NewScanner(os.Stdin)
+
+	var shopChoice string // user input
+	if scanner.Scan() {
+		shopChoice = scanner.Text()
+	} else {
+		shopChoice = "invalid"
+	}
 
 	if strings.ToLower(shopChoice) == "e" { // LEAVING SHOP:
 		fmt.Println("Goodbye! We hope you'll shop with us again soon :)")
 		return "Exit"
 	} else if strings.ToLower(shopChoice) == "buy" { // BUYING:
-		var cropList = p.getUnlocked()
-		printLists(cropList) // prints shop stock
+		var cropList = p.getUnlocked() // unlocked crop list
+		printLists(cropList)           // prints shop stock
+
 		fmt.Println("To buy a listed item, type its name and press Enter.")
-		var buyChoice string // user input
-		fmt.Scanln(&buyChoice)
-		if buyChoice != "" {
-			fmt.Printf("How many %s(s) would you like to buy? (%d gold held)", buyChoice, p.Gold)
-			var quantityToBuy int                // user input
-			_, err := fmt.Scanln(&quantityToBuy) // checking for non-number input
-			for err != nil {
-				fmt.Println("INVALID: Please enter an Integer value.")
-				_, err = fmt.Scan(&quantityToBuy)
-			}
-			errBuy := p.buyItems(buyChoice, quantityToBuy)
-			if errBuy != nil {
-				fmt.Println(strings.ToUpper(errBuy.Error()))
-			} else {
-				fmt.Printf("Successfully purchased %d %s(s)!", quantityToBuy, buyChoice)
-			}
+		var buyChoice string // user input for what to buy
+		if scanner.Scan() {
+			buyChoice = scanner.Text()
+		} else {
+			buyChoice = "invalid"
 		}
+
+		if buyChoice != "invalid" {
+			// quantityToBuyStr holds the input value
+			// and quantityToBuy checks only valid if input value
+			// was a string
+			var quantityToBuyStr string
+			var quantityToBuy int
+
+			// Validates input is an integer
+			fmt.Printf("How many %s(s) would you like to buy? (%d gold held)", buyChoice, p.Gold)
+			if scanner.Scan() {
+				quantityToBuyStr = scanner.Text()
+				// If the input cannot be converted to a string then set quantityToBuy
+				// to -1 (invalid input)
+				inputVal, errStr := strconv.Atoi(quantityToBuyStr)
+				if errStr != nil {
+					quantityToBuy = -1
+				} else {
+					quantityToBuy = inputVal
+				}
+			}
+			if quantityToBuy > 0 {
+				errBuy := p.buyItems(buyChoice, quantityToBuy)
+				if errBuy != nil {
+					fmt.Println(strings.ToUpper(errBuy.Error()))
+				} else {
+					fmt.Printf("Successfully purchased %d %s(s)!", quantityToBuy, buyChoice)
+				}
+			} else {
+				fmt.Printf("Invalid quantity input")
+			}
+		} else {
+			fmt.Printf("Invalid buy input")
+		}
+
 	} else if strings.ToLower(shopChoice) == "sell" { // SELLING:
 		fmt.Println("To sell a listed item, type its name and press Enter.")
 		var inventory = p.getInventory()
 		printLists(inventory) // prints player-held crops & quantities
-		var sellChoice string
-		fmt.Scanln(&sellChoice)                                      // user input
+
+		var sellChoice string // user input
+		if scanner.Scan() {
+			sellChoice = scanner.Text()
+		}
+
 		if (sellChoice != "") && (p.CropInventory[sellChoice] > 0) { // added check to make sure item in inventory
 			fmt.Printf("How many %s would you like to sell? (You have %d)", sellChoice, p.CropInventory[sellChoice])
+			var quantityToSellStr string
 			var quantityToSell int
-			_, err := fmt.Scanln(&quantityToSell) // checking for invalid user input
-			for err != nil {
-				fmt.Println("INVALID: Please enter an Integer value.")
-				_, err = fmt.Scan(&quantityToSell)
+
+			// Validates input is an integer
+			if scanner.Scan() {
+				quantityToSellStr = scanner.Text()
+				// If the input cannot be converted to a string then set quantityToSell
+				// to -1 (invalid input)
+				inputVal, errStr := strconv.Atoi(quantityToSellStr)
+				if errStr != nil {
+					quantityToSell = -1
+				} else {
+					quantityToSell = inputVal
+				}
 			}
-			p.sellItems(sellChoice, quantityToSell)
+
+			// If valid int inpit then
+			if quantityToSell > 0 {
+				p.sellItems(sellChoice, quantityToSell)
+			} else {
+				fmt.Printf("Invalid quantity input")
+			}
 		} else if sellChoice != "" {
 			fmt.Printf("Input \"%s\" not understood. Returning to shop menu", sellChoice)
 		}
@@ -141,10 +194,9 @@ func (p *Player) buyItems(cropToBuy string, quantityToBuy int) error {
 			p.Gold -= (cropObject.Cost * quantityToBuy)
 			p.SeedStorage[cropToBuy] += quantityToBuy
 			return nil // return no error
-		} else { // no error, player gold < total cost
+		} else {
 			return fmt.Errorf("invalid: not enough gold to purchase %d %s crops", quantityToBuy, cropToBuy)
 		}
-
 	} else { // if getCropObject() returned an error
 		return fmt.Errorf("invalid: not a valid crop")
 	}
@@ -157,6 +209,7 @@ func (p *Player) sellItems(cropToSell string, quantityToSell int) error {
 	if quantityInInventory, ok := p.CropInventory[cropToSell]; ok {
 		// Checks if has enough quantity to sell
 		if quantityInInventory >= quantityToSell {
+
 			// getCropObject returns the cropObject or error
 			cropObject, notValidCrop := getCropObject(cropToSell)
 

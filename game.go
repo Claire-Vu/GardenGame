@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
@@ -48,18 +49,21 @@ func main() {
 		// Error Message
 		var errMessage error = nil
 
-		// Ask what user wants to do
-		var choiceStr string
-		fmt.Print("Enter your choice (1-6): ")
-		fmt.Scanln(&choiceStr)
+		// Scanner to prompt for input
+		scanner := bufio.NewScanner(os.Stdin)
 
-		// If user doesn't enter an int
-		choice, errChoice := strconv.Atoi(choiceStr)
-		for errChoice != nil {
-			fmt.Println("Invalid command, please enter an integer.")
-			fmt.Print("Enter your choice (1-6): ")
-			fmt.Scanln(&choiceStr)
-			choice, errChoice = strconv.Atoi(choiceStr)
+		// Prompt the user for action
+		var choiceStr string
+		var choice int
+		fmt.Print("Enter your choice (1-6): ")
+		if scanner.Scan() {
+			choiceStr = scanner.Text()
+			inputVal, errChoice := strconv.Atoi(choiceStr)
+			if errChoice != nil {
+				choice = 0
+			} else {
+				choice = inputVal
+			}
 		}
 
 		// Validate the input
@@ -234,7 +238,11 @@ func AskWhatToPlant(player *Player) (string, error) {
 	}
 
 	fmt.Println("Or type 'exit' to quit the game.")
-	fmt.Scanln(&cropName)
+
+	// need new scanner for reading user input
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	cropName = scanner.Text()
 
 	// Handle the exit case
 	if strings.ToLower(cropName) == "exit" {
@@ -256,23 +264,27 @@ func AskWhatToPlant(player *Player) (string, error) {
 
 // WHERE TO PLANT?
 func (p *Player) AskWhereToPlant() (int, int, error) {
-	var rowStr, colStr string
+	// Need a new scanner - this take the whole string
+	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Println("Enter the row and column (e.g., 0 1) where you want to plant the crop:")
+	scanner.Scan()
+	input := scanner.Text()
+	values := strings.Fields(input) // need to split this into row and col
 
-	_, err := fmt.Scanln(&rowStr, &colStr)
-	if err != nil {
+	// Input should have exactly two values
+	if len(values) != 2 {
 		return 0, 0, fmt.Errorf("invalid input format, please enter row and column (e.g., 0 1)")
 	}
 
-	// convert strings to integers
-	rowInt, err := strconv.Atoi(rowStr)
+	// Convert strings to integers
+	rowInt, err := strconv.Atoi(values[0])
 	if err != nil {
-		return 0, 0, fmt.Errorf("invalid row: %s is not a valid integer", rowStr)
+		return 0, 0, fmt.Errorf("invalid row: %s is not a valid integer", values[0])
 	}
 
-	colInt, err := strconv.Atoi(colStr)
+	colInt, err := strconv.Atoi(values[1])
 	if err != nil {
-		return 0, 0, fmt.Errorf("invalid column: %s is not a valid integer", colStr)
+		return 0, 0, fmt.Errorf("invalid column: %s is not a valid integer", values[1])
 	}
 
 	// Ensure the input is within bounds
