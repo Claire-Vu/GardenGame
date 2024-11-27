@@ -57,7 +57,7 @@ func main() {
 		var choice int
 		fmt.Print("Enter your choice (1-6): ")
 		if scanner.Scan() {
-			choiceStr = scanner.Text()
+			choiceStr = strings.TrimSpace(scanner.Text())
 			inputVal, errChoice := strconv.Atoi(choiceStr)
 			if errChoice != nil {
 				choice = 0
