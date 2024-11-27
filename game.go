@@ -122,34 +122,46 @@ func main() {
 		// REMOVE COMMAND
 		if choice == 3 {
 			var rowStr, colStr string
+			var rowInt, colInt int
 
-			// convert strings to integers
+			// Validates row input is an integer
 			fmt.Print("Enter the row: ")
-			fmt.Scanln(&rowStr)
-			rowInt, errRow := strconv.Atoi(rowStr)
-			for errRow != nil {
-				fmt.Println("Invalid Integer value, please enter an integer.")
-				fmt.Print("Enter the row: ")
-				fmt.Scanln(&rowStr)
-				rowInt, errRow = strconv.Atoi(rowStr)
+			if scanner.Scan() {
+				rowStr = scanner.Text()
+				// If the input cannot be converted to a string then set rowInt
+				// to -1 (invalid input)
+				inputVal, errStr := strconv.Atoi(rowStr)
+				if errStr != nil {
+					rowInt = -1
+				} else {
+					rowInt = inputVal
+				}
 			}
 
-			// convert strings to integers
+			// Validates col input is an integer
 			fmt.Print("Enter the col: ")
-			fmt.Scanln(&colStr)
-			colInt, errRow := strconv.Atoi(colStr)
-			for errRow != nil {
-				fmt.Println("Invalid Integer value, please enter an integer.")
-				fmt.Print("Enter the col: ")
-				fmt.Scanln(&colStr)
-				rowInt, errRow = strconv.Atoi(colStr)
+			if scanner.Scan() {
+				colStr = scanner.Text()
+				// If the input cannot be converted to a string then set colInt
+				// to -1 (invalid input)
+				inputVal, errStr := strconv.Atoi(colStr)
+				if errStr != nil {
+					colInt = -1
+				} else {
+					colInt = inputVal
+				}
+			}
+			// If  a valid input for row or col then attempts to removeItem, else return errMessage
+			if rowInt != -1 && colInt != -1 {
+				// Attempts to removes the Item
+				errPlot := player.Plot.removeItem(rowInt, colInt) // returns error if no item at location
+				if errPlot != nil {
+					errMessage = errPlot
+				}
+			} else {
+				errMessage = fmt.Errorf("invalid input for row or col")
 			}
 
-			// Attempts to removes the Item
-			errPlot := player.Plot.removeItem(rowInt, colInt) // returns error if no item at location
-			if errPlot != nil {
-				errMessage = errPlot
-			}
 		}
 
 		// SHOP
