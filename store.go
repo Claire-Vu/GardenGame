@@ -38,22 +38,27 @@ func (p *Player) StoreFront() string {
 		shopChoice = "invalid"
 	}
 
-	if strings.ToLower(shopChoice) == "e" { // LEAVING SHOP:
+	// LEAVEING SHOP
+	if strings.ToLower(shopChoice) == "e" {
 		fmt.Println("Goodbye! We hope you'll shop with us again soon :)")
 		return "Exit"
-	} else if strings.ToLower(shopChoice) == "buy" { // BUYING:
+
+		// BUYING
+	} else if strings.ToLower(shopChoice) == "buy" {
 		var cropList = p.getUnlocked() // unlocked crop list
 		printLists(cropList)           // prints shop stock
 
 		fmt.Println("To buy a listed item, type its name and press Enter.")
 		var buyChoice string // user input for what to buy
 		if scanner.Scan() {
-			buyChoice = scanner.Text()
-		} else {
-			buyChoice = "invalid"
+			buyChoice = strings.TrimSpace(scanner.Text())
+			_, notFound := getCropObject(buyChoice)
+			if notFound != nil {
+				buyChoice = "Invalid"
+			}
 		}
 
-		if buyChoice != "invalid" {
+		if buyChoice != "Invalid" {
 			// quantityToBuyStr holds the input value
 			// and quantityToBuy checks only valid if input value
 			// was a string
@@ -61,9 +66,9 @@ func (p *Player) StoreFront() string {
 			var quantityToBuy int
 
 			// Validates input is an integer
-			fmt.Printf("How many %s(s) would you like to buy? (%d gold held)", buyChoice, p.Gold)
+			fmt.Printf("How many %s(s) would you like to buy? (%d gold held) ", buyChoice, p.Gold)
 			if scanner.Scan() {
-				quantityToBuyStr = scanner.Text()
+				quantityToBuyStr = strings.TrimSpace(scanner.Text())
 				// If the input cannot be converted to a string then set quantityToBuy
 				// to -1 (invalid input)
 				inputVal, errStr := strconv.Atoi(quantityToBuyStr)
@@ -73,38 +78,46 @@ func (p *Player) StoreFront() string {
 					quantityToBuy = inputVal
 				}
 			}
+			// If quantityToBuy and buyChoice are valid
 			if quantityToBuy > 0 {
+				// We proceed to buy the item and check for any errors
+				// associated with executing that function
 				errBuy := p.buyItems(buyChoice, quantityToBuy)
 				if errBuy != nil {
 					fmt.Println(strings.ToUpper(errBuy.Error()))
 				} else {
 					fmt.Printf("Successfully purchased %d %s(s)!", quantityToBuy, buyChoice)
 				}
+				// If the quantityToBuy was not valid
 			} else {
-				fmt.Printf("Invalid quantity input")
+				fmt.Printf("\n Invalid quantity input")
 			}
+
+			// If the buyChoice was not valid
 		} else {
-			fmt.Printf("Invalid buy input")
+			fmt.Printf("\n Invalid crop input")
 		}
 
-	} else if strings.ToLower(shopChoice) == "sell" { // SELLING:
+		// SELLING
+	} else if strings.ToLower(shopChoice) == "sell" {
 		fmt.Println("To sell a listed item, type its name and press Enter.")
 		var inventory = p.getInventory()
 		printLists(inventory) // prints player-held crops & quantities
 
 		var sellChoice string // user input
 		if scanner.Scan() {
-			sellChoice = scanner.Text()
+			sellChoice = strings.TrimSpace(scanner.Text())
 		}
 
 		if (sellChoice != "") && (p.CropInventory[sellChoice] > 0) { // added check to make sure item in inventory
 			fmt.Printf("How many %s would you like to sell? (You have %d)", sellChoice, p.CropInventory[sellChoice])
+
 			var quantityToSellStr string
 			var quantityToSell int
 
 			// Validates input is an integer
 			if scanner.Scan() {
-				quantityToSellStr = scanner.Text()
+				quantityToSellStr = strings.TrimSpace(scanner.Text())
 				// If the input cannot be converted to a string then set quantityToSell
 				// to -1 (invalid input)
 				inputVal, errStr := strconv.Atoi(quantityToSellStr)
@@ -115,20 +128,23 @@ func (p *Player) StoreFront() string {
 				}
 			}
 
-			// If valid int inpit then
+			// If valid int input then sell the items and check all
+			// associated errors with that action
 			if quantityToSell > 0 {
 				p.sellItems(sellChoice, quantityToSell)
 			} else {
-				fmt.Printf("Invalid quantity input")
+				fmt.Printf("\nInvalid quantity input")
 			}
 		} else if sellChoice != "" {
-			fmt.Printf("Input \"%s\" not understood. Returning to shop menu", sellChoice)
+			fmt.Printf("\n Input \"%s\" not understood. Returning to shop menu", sellChoice)
 		}
-	} else { // INVALID INPUT:
-		fmt.Println("Input not understood. Please type 'buy', 'sell', or 'E'.")
+	} else { // INVALID ACTION INPUT:
+		fmt.Println("\nInput not understood. Please type 'buy', 'sell', or 'E'.")
 	}
 	// Leaves 2 second delay for user to look at err/success messages
+	fmt.Println("\n Loading game ...")
 	time.Sleep(2 * time.Second)
+
 	return "notExit"
 }
 

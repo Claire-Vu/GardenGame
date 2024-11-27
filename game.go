@@ -94,14 +94,16 @@ func main() {
 			// Ask where to plant the crop
 			row, col, err := player.AskWhereToPlant()
 			for err != nil {
-				fmt.Println(err)
+				fmt.Println()
+				fmt.Println(strings.ToUpper(err.Error()))
 				row, col, err = player.AskWhereToPlant()
 			}
 
 			// Plant the crop -- CROP OBJECT (YAY!)
 			crop, err := getCropObject(cropName)
 			if err != nil { // If crop is not one of available crops
-				fmt.Println(err)
+				fmt.Println()
+				fmt.Println(strings.ToUpper(err.Error()))
 				return
 			}
 
@@ -127,39 +129,40 @@ func main() {
 			// Validates row input is an integer
 			fmt.Print("Enter the row: ")
 			if scanner.Scan() {
-				rowStr = scanner.Text()
+				rowStr = strings.TrimSpace(scanner.Text())
 				// If the input cannot be converted to a string then set rowInt
-				// to -1 (invalid input)
+				// to -1 (invalid input) and set error message accordingly
 				inputVal, errStr := strconv.Atoi(rowStr)
 				if errStr != nil {
 					rowInt = -1
+					errMessage = fmt.Errorf("invalid row input")
+					// If valid prompt for col
 				} else {
 					rowInt = inputVal
+					// Validates col input is an integer
+					fmt.Print("Enter the col: ")
+					if scanner.Scan() {
+						colStr = strings.TrimSpace(scanner.Text())
+						// If the input cannot be converted to a string then set colInt
+						// to -1 (invalid input)
+						inputVal, errStr := strconv.Atoi(colStr)
+						if errStr != nil {
+							colInt = -1
+							errMessage = fmt.Errorf("invalid column input")
+						} else {
+							colInt = inputVal
+						}
+					}
 				}
 			}
 
-			// Validates col input is an integer
-			fmt.Print("Enter the col: ")
-			if scanner.Scan() {
-				colStr = scanner.Text()
-				// If the input cannot be converted to a string then set colInt
-				// to -1 (invalid input)
-				inputVal, errStr := strconv.Atoi(colStr)
-				if errStr != nil {
-					colInt = -1
-				} else {
-					colInt = inputVal
-				}
-			}
-			// If  a valid input for row or col then attempts to removeItem, else return errMessage
+			// If  a valid input for row or col then attempts to removeItem
 			if rowInt != -1 && colInt != -1 {
 				// Attempts to removes the Item
 				errPlot := player.Plot.removeItem(rowInt, colInt) // returns error if no item at location
 				if errPlot != nil {
 					errMessage = errPlot
 				}
-			} else {
-				errMessage = fmt.Errorf("invalid input for row or col")
 			}
 
 		}
