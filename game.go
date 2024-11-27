@@ -258,7 +258,11 @@ func AskWhatToPlant(player *Player) (string, error) {
 func (p *Player) AskWhereToPlant() (int, int, error) {
 	var rowStr, colStr string
 	fmt.Println("Enter the row and column (e.g., 0 1) where you want to plant the crop:")
-	fmt.Scanln(&rowStr, &colStr)
+
+	_, err := fmt.Scanln(&rowStr, &colStr)
+	if err != nil {
+		return 0, 0, fmt.Errorf("invalid input format, please enter row and column (e.g., 0 1)")
+	}
 
 	// convert strings to integers
 	rowInt, err := strconv.Atoi(rowStr)

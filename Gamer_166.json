@@ -1,13 +1,13 @@
 {
-  "Username": "Yen_355",
+  "Username": "Gamer_166",
   "Points": 0,
   "Gold": 0,
   "SeedStorage": {
     "carrot": 0,
-    "corn": 10,
+    "corn": 9,
     "garlic": 0,
     "potato": 0,
-    "pumpkin": 0
+    "pumpkin": 1
   },
   "CropInventory": {},
   "Plot": {
@@ -16,47 +16,53 @@
     "Plot": [
       [
         null,
-        null,
-        null,
-        null,
-        null
-      ],
-      [
-        null,
         {
           "Type": "Vegetable",
           "Name": "carrot",
           "Cost": 20,
           "ProductionDays": 4,
-          "TimePlanted": 5,
+          "TimePlanted": 1,
           "Symbol": "🥕",
           "SellPrice": 10,
-          "FullyGrown": true,
-          "UnlockPoints": 0,
-          "Rotten": false
-        },
-        {
-          "Type": "Vegetable",
-          "Name": "pumpkin",
-          "Cost": 100,
-          "ProductionDays": 14,
-          "TimePlanted": 3,
-          "Symbol": "🎃",
-          "SellPrice": 160,
           "FullyGrown": false,
           "UnlockPoints": 0,
           "Rotten": false
         },
         null,
-        null
+        null,
+        {
+          "Type": "Vegetable",
+          "Name": "corn",
+          "Cost": 75,
+          "ProductionDays": 8,
+          "TimePlanted": 1,
+          "Symbol": "🌽",
+          "SellPrice": 110,
+          "FullyGrown": false,
+          "UnlockPoints": 0,
+          "Rotten": false
+        }
       ],
       [
+        null,
+        {
+          "Type": "Vegetable",
+          "Name": "corn",
+          "Cost": 100,
+          "ProductionDays": 8,
+          "TimePlanted": 4,
+          "Symbol": "🌽",
+          "SellPrice": 30,
+          "FullyGrown": false,
+          "UnlockPoints": 0,
+          "Rotten": false
+        },
         {
           "Type": "Vegetable",
           "Name": "garlic",
           "Cost": 60,
           "ProductionDays": 8,
-          "TimePlanted": 4,
+          "TimePlanted": 1,
           "Symbol": "🧄",
           "SellPrice": 40,
           "FullyGrown": false,
@@ -64,6 +70,11 @@
           "Rotten": false
         },
         null,
+        null
+      ],
+      [
+        null,
+        null,
         null,
         null,
         null
@@ -71,7 +82,18 @@
       [
         null,
         null,
-        null,
+        {
+          "Type": "Vegetable",
+          "Name": "potato",
+          "Cost": 40,
+          "ProductionDays": 6,
+          "TimePlanted": 3,
+          "Symbol": "🥔",
+          "SellPrice": 20,
+          "FullyGrown": false,
+          "UnlockPoints": 0,
+          "Rotten": false
+        },
         null,
         null
       ],
@@ -85,5 +107,5 @@
     ],
     "PlotLevel": 0
   },
-  "Day": 5
+  "Day": 4
 }
