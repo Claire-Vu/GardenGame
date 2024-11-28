@@ -27,11 +27,11 @@ var crops = map[string]*Crop{
 	"garlic":  {"Vegetable", "garlic", 40, 8, 0, "🧄", 60, false, 0, false},
 	"corn":    {"Vegetable", "corn", 75, 8, 0, "🌽", 110, false, 0, false},
 	"pumpkin": {"Vegetable", "pumpkin", 100, 14, 0, "🎃", 160, false, 0, false},
-	"apple":   {"Fruit", "apple", 70, 6, 0, "🍎", 10, false, 10, false},
-	"orange":  {"Fruit", "orange", 70, 6, 0, "🍊", 10, false, 10, false},
-	"mango":   {"Fruit", "mango", 110, 8, 0, "🥭", 20, false, 20, false},
-	"peach":   {"Fruit", "peach", 140, 8, 0, "🍑", 30, false, 30, false},
-	"banana":  {"Fruit", "banana", 180, 12, 0, "🍌", 45, false, 40, false},
+	"apple":   {"Fruit", "apple", 70, 6, 0, "🍎", 10, false, 200, false},
+	"orange":  {"Fruit", "orange", 70, 6, 0, "🍊", 10, false, 200, false},
+	"mango":   {"Fruit", "mango", 110, 8, 0, "🥭", 20, false, 300, false},
+	"peach":   {"Fruit", "peach", 140, 8, 0, "🍑", 30, false, 400, false},
+	"banana":  {"Fruit", "banana", 180, 12, 0, "🍌", 45, false, 500, false},
 }
 
 // A list of all crop keys for iteration in other files

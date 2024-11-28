@@ -193,12 +193,12 @@ func (p *Player) updatePlot() {
 	// only upgrades the plot when player reaches the specified points
 	// and when plot hasn't been updated yet
 	if p.Points == 400 && p.Plot.PlotLevel == 1 {
-		p.GrowPlotPlayer(2, 2)
+		p.GrowPlotPlayer(3, 3)
 		p.Plot.PlotLevel++
 		fmt.Println("Your plot was automatically upgraded!")
 	}
 	if p.Points == 600 && p.Plot.PlotLevel == 2 {
-		p.GrowPlotPlayer(2, 2)
+		p.GrowPlotPlayer(4, 4)
 		p.Plot.PlotLevel++
 		fmt.Println("Your plot was automatically upgraded!")
 	}
